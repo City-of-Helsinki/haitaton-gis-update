@@ -119,7 +119,7 @@ sh copy-files.sh
 After active development phase it might be more practical to handle file
 copying in `Dockerfile`s and avoid explicit copying.
 
-Fill out following secrets in gis-material-update/.env:
+Fill out following secrets in .env:
 
 ```
 HELSINKI_EXTRANET_USERNAME=
@@ -458,7 +458,7 @@ Configure and activate python virtual environment.
 
 Fetch all source data, as described above.
 
-Run following in `gis-material-update/process` -directory.
+Run following in `process` -directory.
 
 ```sh
 [(venv)::process/]$ python -m unittest discover -v
@@ -519,22 +519,22 @@ To create python environment:
 
 ```sh
 # Python installation is required
-[gis-material-update/process]$ python -m venv venv
-[gis-material-update/process]$ source venv/bin/activate
-[(venv) gis-material-update/process]$ pip install --upgrade pip
-[(venv) gis-material-update/process]$ pip install -r requirements.txt
+[process]$ python -m venv venv
+[process]$ source venv/bin/activate
+[(venv) process]$ pip install --upgrade pip
+[(venv) process]$ pip install -r requirements.txt
 ```
 
 To exit from already activated virtual environment:
 
 ```
-[(venv) gis-material-update/process]$ ./venv/bin/deactivate
+[(venv) process]$ ./venv/bin/deactivate
 ```
 
 To activate already created virtual environment:
 
 ```
-[gis-material-update/process]$ ./venv/bin/activate
+[process]$ ./venv/bin/activate
 ```
 
 ## Problems in virtual environment creation
