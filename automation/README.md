@@ -6,12 +6,12 @@ Automation module for Haitaton spatial material.
 
 In order to get started, following steps need to be taken.
 - Fill out variables in file `haitaton.env`
-- Check configuration file `gis-material-update/config.yaml`. At least `tormays_table_org`, `validate_limit_min` and `validate_limit_max` need to be set right. For others default values are ok.
+- Check configuration file `config.yaml`. At least `tormays_table_org`, `validate_limit_min` and `validate_limit_max` need to be set right. For others default values are ok.
 - Build `haitaton-gis-automation` image
 - Run `haitaton-gis-automation` container
 
 ## Build images
-Fill out following variables in `gis-material-update/automation/haitaton.env`:
+Fill out following variables in `automation/haitaton.env`:
 
 ```
 HAITATON_USER=
