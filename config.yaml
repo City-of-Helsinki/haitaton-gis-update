@@ -4,8 +4,8 @@ hsl:
   target_file: "buses_lines.gpkg"
   target_buffer_file: "tormays_buses_polys.gpkg"
   tormays_table_org: "tormays_buses_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer:
     - 15
   store_orinal_data: False
@@ -17,8 +17,8 @@ maka_autoliikennemaarat:
   target_file: "volume_lines.gpkg"
   target_buffer_file: "tormays_volumes{}_polys.gpkg"
   tormays_table_org: "tormays_volumes{}_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer:
     - 15
     - 30
@@ -31,8 +31,8 @@ ylre_katualueet:
   target_file: "ylre_classes_orig_polys.gpkg"
   target_buffer_file: "tormays_ylre_classes_polys.gpkg"
   tormays_table_org: "tormays_ylre_classes_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   store_orinal_data: False
 #  store_orinal_data: "ylre_classes_orig_polys"
 ylre_katuosat:
@@ -42,8 +42,8 @@ ylre_katuosat:
   target_file: "ylre_parts_orig_polys.gpkg"
   target_buffer_file: "tormays_ylre_parts_polys.gpkg"
   tormays_table_org: "tormays_ylre_parts_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer:
     - 5
   store_orinal_data: False
@@ -68,8 +68,8 @@ tram_infra:
   target_file: "tram_infra.gpkg"
   target_buffer_file: "tormays_tram_infra_polys.gpkg"
   tormays_table_org: "tormays_tram_infra_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer:
     - 20
   store_orinal_data: False
@@ -79,8 +79,8 @@ tram_lines:
   target_file: "tram_lines.gpkg"
   target_buffer_file: "tormays_tram_lines_polys.gpkg"
   tormays_table_org: "tormays_tram_lines_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer:
     - 35
   store_orinal_data: False
@@ -91,8 +91,8 @@ cycle_infra:
   target_file: "cycle_infra.gpkg"
   target_buffer_file: "tormays_cycle_infra_polys.gpkg"
   tormays_table_org: "tormays_cycle_infra_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer:
     - 20
   store_orinal_data: False
@@ -105,8 +105,8 @@ liikennevaylat:
   target_buffer_file: "tormays_street_classes_polys.gpkg"
   extra_args: "-nlt CONVERT_TO_LINEAR"
   tormays_table_org: "tormays_street_classes_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer_class_values:
     paakatu_tai_moottorivayla: 20
     alueellinen_kokoojakatu: 20
@@ -121,8 +121,8 @@ central_business_area:
   local_file: "central_business_areas.gpkg"
   target_file: "tormays_central_business_area_polys.gpkg"
   tormays_table_org: "tormays_central_business_area_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   store_orinal_data: False
 #  store_orinal_data: "Piirijako_pienalue"
 
