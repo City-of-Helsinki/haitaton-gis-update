@@ -105,7 +105,7 @@ liikennevaylat:
   target_buffer_file: "tormays_street_classes_polys.gpkg"
   extra_args: "-nlt CONVERT_TO_LINEAR"
   tormays_table_org: "tormays_street_classes_polys"
-  validate_limit_min: 0.90
+  validate_limit_min: 0.07
   validate_limit_max: 1.15
   buffer_class_values:
     paakatu_tai_moottorivayla: 20
