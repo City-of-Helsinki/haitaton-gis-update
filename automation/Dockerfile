@@ -31,8 +31,10 @@ COPY ./validate-deploy/validate_deploy_data.py /haitaton-gis-validate-deploy/
 COPY ./validate-deploy/validate_deploy_data.sh /haitaton-gis-validate-deploy/
 COPY ./validate-deploy/modules/ /haitaton-gis-validate-deploy/modules/
 RUN mkdir -p /downloads /gis-output /local_data \
-    && chown -R :0 ./ \
-    && chmod -R g+w ./
+    && chgrp -R 0 /downloads /gis-output /local_data \
+    && chmod -R g+w /downloads /gis-output /local_data \
+    && chmod g+s /downloads /gis-output /local_data \
+    && chown -R :0 ./ 
 #    && chown -R :0 /downloads /gis-output /local_data \
 #    && chmod -R g+w /downloads /gis-output /local_data
 WORKDIR /haitaton-automation
