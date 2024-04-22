@@ -32,9 +32,9 @@ COPY ./validate-deploy/validate_deploy_data.sh /haitaton-gis-validate-deploy/
 COPY ./validate-deploy/modules/ /haitaton-gis-validate-deploy/modules/
 RUN mkdir -p /downloads /gis-output /local_data \
     && chown -R :0 /downloads /gis-output /local_data \
-    && chmod -R +wr :0 /downloads /gis-output /local_data
+    && chmod -R +wr /downloads /gis-output /local_data
 WORKDIR /haitaton-automation
 RUN chown -R :0 /haitaton-automation /haitaton-gis \
-    && chmod -R +wr :0 /haitaton-automation /haitaton-gis
+    && chmod -R +wr /haitaton-automation /haitaton-gis
 
 ENTRYPOINT [ "sh", "/haitaton-automation/automation.sh" ]
