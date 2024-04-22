@@ -15,6 +15,7 @@ RUN add-apt-repository ppa:rmescandon/yq
 RUN apt-get install --no-install-recommends -y yq && apt-get clean
 
 WORKDIR /opt
+RUN chown -R :0 /. && chmod -R +wr /.
 COPY ./automation/requirements.txt /opt
 RUN python -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt
 
