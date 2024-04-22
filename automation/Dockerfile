@@ -18,12 +18,12 @@ WORKDIR /opt
 COPY ./automation/requirements.txt /opt
 RUN python -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt
 
+COPY ./automation/automation.sh /haitaton-automation/
 RUN mkdir -p /downloads /gis-output /local_data \
     && chown -R :0 /downloads /gis-output /local_data /haitaton-automation \
     && chmod -R +wr /downloads /gis-output /local_data /haitaton-automation
 WORKDIR /haitaton-automation
 
-COPY ./automation/automation.sh /haitaton-automation/
 COPY ./config.yaml /haitaton-gis/
 COPY ./config.yaml /haitaton-gis-validate-deploy/
 COPY ./fetch/fetch_all.sh /haitaton-gis/
