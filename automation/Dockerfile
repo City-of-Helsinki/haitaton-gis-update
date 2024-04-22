@@ -15,7 +15,6 @@ RUN add-apt-repository ppa:rmescandon/yq
 RUN apt-get install --no-install-recommends -y yq && apt-get clean
 
 WORKDIR /opt
-RUN chown -R :0 /. && chmod -R +wr /.
 COPY ./automation/requirements.txt /opt
 RUN python -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt
 
@@ -33,8 +32,8 @@ COPY ./validate-deploy/validate_deploy_data.sh /haitaton-gis-validate-deploy/
 COPY ./validate-deploy/modules/ /haitaton-gis-validate-deploy/modules/
 
 RUN mkdir -p /downloads /gis-output /local_data \
-    && chown -R :0 /downloads /gis-output /local_data /haitaton-automation /haitaton-gis/ \
-    && chmod -R +wr /downloads /gis-output /local_data /haitaton-automation /haitaton-gis/
+    && chown -R :0 /downloads /gis-output /local_data /haitaton-automation /haitaton-gis \
+    && chmod -R +wr /downloads /gis-output /local_data /haitaton-automation /haitaton-gis
 
 WORKDIR /haitaton-automation
 
