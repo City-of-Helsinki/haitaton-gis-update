@@ -19,11 +19,6 @@ COPY ./automation/requirements.txt /opt
 RUN python -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt
 
 COPY ./automation/automation.sh /haitaton-automation/
-RUN mkdir -p /downloads /gis-output /local_data \
-    && chown -R :0 /downloads /gis-output /local_data /haitaton-automation \
-    && chmod -R +wr /downloads /gis-output /local_data /haitaton-automation
-WORKDIR /haitaton-automation
-
 COPY ./config.yaml /haitaton-gis/
 COPY ./config.yaml /haitaton-gis-validate-deploy/
 COPY ./fetch/fetch_all.sh /haitaton-gis/
@@ -35,5 +30,11 @@ COPY ./process/modules/ /haitaton-gis/modules/
 COPY ./validate-deploy/validate_deploy_data.py /haitaton-gis-validate-deploy/
 COPY ./validate-deploy/validate_deploy_data.sh /haitaton-gis-validate-deploy/
 COPY ./validate-deploy/modules/ /haitaton-gis-validate-deploy/modules/
+
+RUN mkdir -p /downloads /gis-output /local_data \
+    && chown -R :0 /downloads /gis-output /local_data /haitaton-automation /haitaton-gis/ \
+    && chmod -R +wr /downloads /gis-output /local_data /haitaton-automation /haitaton-gis/
+
+WORKDIR /haitaton-automation
 
 ENTRYPOINT [ "sh", "/haitaton-automation/automation.sh" ]
