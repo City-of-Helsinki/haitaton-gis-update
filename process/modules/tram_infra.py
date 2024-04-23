@@ -40,7 +40,6 @@ class TramInfra(GisProcessor):
         self._store_original_data = cfg.store_orinal_data(self._module)
         file_name = cfg.local_file(self._module)
         self._lines = gpd.read_file(file_name)
-        print(self._lines)
 
     def process(self):
         lines = self._lines
@@ -126,7 +125,6 @@ class TramInfra(GisProcessor):
         # instruct Geopandas for correct data type in file write
         # fid is originally as index, obtain fid as column...
         tormays_polygons = self._process_result_polygons.reset_index(drop=True)
-        print(tormays_polygons)
 
         schema = gpd.io.file.infer_schema(tormays_polygons)
         schema["properties"]["infra"] = "int32"
