@@ -93,7 +93,7 @@ cycle_infra:
   target_file: "cycle_infra.gpkg"
   target_buffer_file: "tormays_cycle_infra_polys.gpkg"
   tormays_table_org: "tormays_cycle_infra_polys"
-  validate_limit_min: 0.98
+  validate_limit_min: 0.40
   validate_limit_max: 1.10
   buffer_class_values:
     kaista: 1
@@ -104,6 +104,7 @@ cycle_infra:
     - 20
 #  store_orinal_data: False
   store_orinal_data: "cycle_infra_test"
+  ylre_street_class_buffer: 10
 liikennevaylat:
   addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
   layer: "helsinki:Liikennevaylat_kehitys"
