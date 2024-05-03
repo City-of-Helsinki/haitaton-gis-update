@@ -44,7 +44,7 @@ Where `<source>` is currently one of:
 - `ylre_katualueet` - Helsinki YLRE street areas, polygons.
 - `ylre_katuosat` - Helsinki YLRE parts, polygons.
 - `maka_autoliikennemaarat` - Traffic volumes (car traffic)
-- `cycle_infra` - Cycle infra (local file)
+- `cycle_infra` - Helsinki city cycle infra
 - `central_business_area` - Helsinki city "kantakaupunki"
 - `liikennevaylat` - Helsinki city street classes
 
