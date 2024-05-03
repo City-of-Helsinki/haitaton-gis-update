@@ -44,10 +44,8 @@ Where `<source>` is currently one of:
 - `ylre_katualueet` - Helsinki YLRE street areas, polygons.
 - `ylre_katuosat` - Helsinki YLRE parts, polygons.
 - `maka_autoliikennemaarat` - Traffic volumes (car traffic)
-- ~~`cycle_infra` - Cycle infra (local file)~~
+- `cycle_infra` - Cycle infra (local file)
 - `central_business_area` - Helsinki city "kantakaupunki"
 - `liikennevaylat` - Helsinki city street classes
-
-Source `cycle_infra` is not yet supported because it is using static local files.
 
 This docker image run will fetch `<source>` data, process it and after that `<source>` data will be validated and deployed to the database using given environment variables.
