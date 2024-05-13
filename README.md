@@ -304,14 +304,15 @@ Output files (names configured in `config.yaml`)
 
 ### `cycle_infra`
 
-Prerequisite: copy source file to `data` -directory. See `data/README.md`
+Prerequisite: fetched `ylre_katualueet` and `cycle_infra` -materials.
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch cycle_infra
+docker-compose run --rm gis-fetch ylre_katualueet cycle_infra
+docker-compose run --rm gis-process ylre_katualueet
 docker-compose run --rm gis-process cycle_infra
 docker-compose stop gis-db
 ```
@@ -347,7 +348,7 @@ Output files (names configured in `config.yaml`)
 
 ### `liikennevaylat`
 
-Prerequisite: 
+Prerequisite:
 - `central_business_area` material fetched
 - `ylre_katuosat` material fetched
 - `liikennevaylat` material fetched
@@ -389,9 +390,9 @@ Where `<source>` is currently one of:
 - `ylre_katualueet` - Helsinki YLRE street areas, polygons.
 - `ylre_katuosat` - Helsinki YLRE parts, polygons.
 - `maka_autoliikennemaarat` - Traffic volumes (car traffic)
-- `tram_infra` - Tram infra  
+- `tram_infra` - Tram infra
 - `tram_lines` - Tram railways
-- `cycle_infra` - Cycle infra (local file)
+- `cycle_infra` - Helsinki city cycle infra
 - `central_business_area` - Helsinki city "kantakaupunki"
 - `liikennevaylat` - Helsinki city street classes
 
@@ -416,7 +417,7 @@ All sources are having own configuration variables in config.yaml. These are inc
   validate_limit_max: 1.10
 ```
 
-where 
+where
 - `tormays_table_org` = "tormays" table name which is used in Haitaton (variable is used in gis-process)
 - `tormays_table_temp` = temporary table name where gis-process will save processed data (variable is used in gis-process)
 - `validate_limit_min` = percentage lower limit on "tormays" data eg. 0.98: (line amount of "tormays_table_org")*0.98 (variable is used in gis-validate-deploy)
@@ -426,10 +427,10 @@ where
 
 Total automation process includes this processes:
 - gis-fetch (Remark: each source is having it's own prerequisites)
-- gis-process (Remark: tormays_table_org value should be equivalent to Haitaton model) 
+- gis-process (Remark: tormays_table_org value should be equivalent to Haitaton model)
 - gis-validate-deploy (Remark: validate_limit_min and validate_limit_max values)
 
-Automation of  the `<source>`: 
+Automation of  the `<source>`:
 
 ```sh
 docker-compose run --rm gis-fetch <source>
