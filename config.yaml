@@ -94,7 +94,7 @@ cycle_infra:
   target_buffer_file: "tormays_cycle_infra_polys.gpkg"
   tormays_table_org: "tormays_cycle_infra_polys"
   validate_limit_min: 0.40
-  validate_limit_max: 1.10
+  validate_limit_max: 1.50
   buffer_class_values:
     kaista: 1
     yksisuuntainen: 1.5

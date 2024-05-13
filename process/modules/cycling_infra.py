@@ -70,7 +70,7 @@ class CycleInfra(GisProcessor):
                 "Ulkoilureitti",
                 "Kulkuväylä aukiolla",
                 "Suojatie",
-                "Puistotie- tai väylä",
+#                "Puistotie- tai väylä",
             ],
         }
 
@@ -230,7 +230,7 @@ class CycleInfra(GisProcessor):
         # Dissolve geometries base on attributes listed
         attrs = ["paatyyppi", "alatyyppi", "silta_alikulku", "hierarkia", "yksisuuntaisuus", "kadun_nimi", ]
         for attr in attrs:
-            target_infra_polys[attr] = target_infra_polys[attr].fillna("NULL")
+            target_infra_polys[attr] = target_infra_polys[attr].fillna("")
 
         target_infra_polys = target_infra_polys.dissolve(by=attrs, aggfunc="sum", as_index=False)
 
