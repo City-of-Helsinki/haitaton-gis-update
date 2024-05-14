@@ -71,6 +71,7 @@ tram_infra:
   validate_limit_min: 0.90
   validate_limit_max: 1.15
   buffer:
+    - 4
     - 20
   store_orinal_data: False
 #  store_orinal_data: "tram_infra"
@@ -86,17 +87,24 @@ tram_lines:
   store_orinal_data: False
 #  store_orinal_data: "tram_lines"
 cycle_infra:
-  addr: "/local_data/helsinki_cycleways.gpkg"
+  addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
+  layer: "helsinki:Liikennevaylat_kehitys"
   local_file: "helsinki_cycleways.gpkg"
   target_file: "cycle_infra.gpkg"
   target_buffer_file: "tormays_cycle_infra_polys.gpkg"
   tormays_table_org: "tormays_cycle_infra_polys"
-  validate_limit_min: 0.90
-  validate_limit_max: 1.15
+  validate_limit_min: 0.40
+  validate_limit_max: 1.50
+  buffer_class_values:
+    kaista: 1
+    yksisuuntainen: 1.5
+    kaksisuuntainen: 2
+    kaksisuuntainen_baana: 2.5
   buffer:
     - 20
-  store_orinal_data: False
-#  store_orinal_data: "cycle_infra"
+#  store_orinal_data: False
+  store_orinal_data: "cycle_infra_test"
+  ylre_street_class_buffer: 10
 liikennevaylat:
   addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
   layer: "helsinki:Liikennevaylat_kehitys"
@@ -165,10 +173,10 @@ local_docker_development:
 docker_development:
   database:
     port: 154321
-    host: localhost1
-    username: haitaton1
-    password: haitaton1
-    database: haitaton1
+    host: localhost
+    username: haitaton
+    password: haitaton
+    database: haitaton
   storage:
     download_dir: "/downloads"
     output_dir: "/gis-output"

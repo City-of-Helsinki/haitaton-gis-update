@@ -36,7 +36,7 @@ class YlreKatualueet:
         )
         df = df[~df["ylre_class"].isna()]
         df = df[~(df["geometry"].isna() | df["geometry"].is_empty)].loc[
-            :, ["ylre_class", "geometry"]
+            :, ["ylre_class", "kadun_nimi", "geometry"]
         ]
         df["fid"] = df.reset_index().index
         self._df = df.set_index("fid")

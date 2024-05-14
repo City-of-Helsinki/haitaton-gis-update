@@ -2,6 +2,7 @@ from __future__ import annotations
 from os.path import exists
 from pathlib import Path
 import yaml
+import os
 
 
 class Config:
@@ -111,6 +112,10 @@ class Config:
         """Return buffer value list from configuration."""
         return self._cfg.get(item, {}).get("buffer_class_values")
 
+    def ylre_street_class_buffer(self, item: str) -> str:
+        """Return buffer value list from configuration."""
+        return self._cfg.get(item, {}).get("ylre_street_class_buffer")
+
     def pg_conn_uri(self, deployment: str = None) -> str:
         """Return PostgreSQL connection URI
 
@@ -119,9 +124,9 @@ class Config:
             deployment = self.deployment_profile()
 
         return "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(
-            user=self._cfg.get(deployment, {}).get("database").get("username"),
-            password=self._cfg.get(deployment, {}).get("database").get("password"),
-            host=self._cfg.get(deployment, {}).get("database").get("host"),
-            port=self._cfg.get(deployment, {}).get("database").get("port"),
-            dbname=self._cfg.get(deployment, {}).get("database").get("database"),
+            user=os.environ.get("HAITATON_USER",self._cfg.get(deployment, {}).get("database").get("username")),
+            password=os.environ.get("HAITATON_PASSWORD",self._cfg.get(deployment, {}).get("database").get("password")),
+            host=os.environ.get("HAITATON_HOST",self._cfg.get(deployment, {}).get("database").get("host")),
+            port=os.environ.get("HAITATON_PORT",self._cfg.get(deployment, {}).get("database").get("port")),
+            dbname=os.environ.get("HAITATON_DATABASE",self._cfg.get(deployment, {}).get("database").get("database")),
         )

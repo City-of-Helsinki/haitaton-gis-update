@@ -17,6 +17,9 @@ do
     liikennevaylat)
         sources="${sources} liikennevaylat central_business_area ylre_katuosat"
         ;;
+    cycle_infra)
+        sources="${sources} cycle_infra ylre_katualueet"
+        ;;
     *)
         sources="${sources} $tormays_source"
         ;;
@@ -39,6 +42,9 @@ else
         case $tormays_source in
         liikennevaylat)
             /opt/venv/bin/python /haitaton-gis/process_data.py central_business_area ylre_katuosat $tormays_source
+            ;;
+        cycle_infra)
+            /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katualueet $tormays_source
             ;;
         *)
             /opt/venv/bin/python /haitaton-gis/process_data.py $tormays_source
