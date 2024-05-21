@@ -71,7 +71,6 @@ tram_infra:
   validate_limit_min: 0.90
   validate_limit_max: 1.15
   buffer:
-    - 4
     - 20
   store_orinal_data: False
 #  store_orinal_data: "tram_infra"
