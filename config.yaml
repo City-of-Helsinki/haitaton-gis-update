@@ -45,7 +45,7 @@ ylre_katuosat:
   validate_limit_min: 0.90
   validate_limit_max: 1.15
   buffer:
-    - 5
+    - 0
   store_orinal_data: False
 #  store_orinal_data: "ylre_parts_orig_polys"
 osm:
@@ -71,7 +71,6 @@ tram_infra:
   validate_limit_min: 0.90
   validate_limit_max: 1.15
   buffer:
-    - 4
     - 20
   store_orinal_data: False
 #  store_orinal_data: "tram_infra"
@@ -116,11 +115,11 @@ liikennevaylat:
   validate_limit_min: 0.07
   validate_limit_max: 1.15
   buffer_class_values:
-    paakatu_tai_moottorivayla: 20
-    alueellinen_kokoojakatu: 20
-    paikallinen_kokoojakatu: 20
-    kantakaupungin_asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 10
-    asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 10
+    paakatu_tai_moottorivayla: 10
+    alueellinen_kokoojakatu: 7
+    paikallinen_kokoojakatu: 5
+    kantakaupungin_asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 5
+    asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 2
   store_orinal_data: False
 #  store_orinal_data: "liikennevaylat"
 central_business_area:

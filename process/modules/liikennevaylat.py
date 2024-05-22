@@ -7,6 +7,7 @@ from os import path
 
 from modules.config import Config
 from modules.gis_processing import GisProcessor
+from modules.common import *
 
 
 class Liikennevaylat(GisProcessor):
@@ -236,6 +237,7 @@ class Liikennevaylat(GisProcessor):
 
     def _check_and_set_ylre_classes_id(self, lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         ylre_katuosat_dissolved = self._ylre_katuosat.dissolve("ylre_street_area")
+        ylre_katuosat_dissolved["geometry"] = ylre_katuosat_dissolved.buffer(15)
         joined_result = gpd.sjoin(lines, ylre_katuosat_dissolved, predicate='within')
 
         retval = lines.merge(joined_result[['uuid', 'index_right']], how='left', left_on='uuid', right_on='uuid')
@@ -248,19 +250,30 @@ class Liikennevaylat(GisProcessor):
         retval = target_infra_polys[0:0]
         for buffer_class, buffer_value in self._buffers.items():
             buffered_items = target_infra_polys.loc[target_infra_polys["street_class"].isin(self._buffer_class_street_class_values[buffer_class])].copy()
-            buffered_items["geometry"] = buffered_items.buffer(buffer_value)
+            buffered_items["geometry"] = buffered_items.buffer(buffer_value, cap_style=2)
             retval = gpd.GeoDataFrame(pd.concat([retval, buffered_items], ignore_index=True))
 
         return retval
 
-    def _clip_by_ylre_classes_areas(self, geometry: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    def _clip_by_ylre_classes_areas(self, geometryToClip: gpd.GeoDataFrame, mask) -> gpd.GeoDataFrame:
+        # This internal function is not used and it's functionality is moved to common function (clipAreasByAreas).
+        # Still kept here as how the original implementation was done.
 
-        ylre_katuosat_dissolved = self._ylre_katuosat.dissolve("ylre_street_area")
+        geometry = geometryToClip[~geometryToClip.is_empty]
+        dissolve_attrs = ["ylre_street_area"]
+        ylre_katuosat_dissolved = mask.dissolve(by=dissolve_attrs, as_index=False)
+        ylre_katuosat_dissolved = ylre_katuosat_dissolved.explode(ignore_index=True)
         ylre_areas = geometry[geometry["index_right"].notnull()]
+        dissolve_attrs = ["street_class", "silta_alikulku", "yksisuuntaisuus"]
+        for attr in dissolve_attrs:
+            ylre_areas[attr] = ylre_areas[attr].fillna("")
+        #ylre_areas = ylre_areas.dissolve(by=dissolve_attrs, as_index=False)
+        ylre_areas = ylre_areas.explode(ignore_index=True)
         clipped_result=gpd.clip(ylre_areas, ylre_katuosat_dissolved)
+        clipped_result = clipped_result.explode(ignore_index=True)
 
         # Getting objects which were not clipped
-        merged = ylre_areas.merge(clipped_result, how="outer", indicator=True, on="id", suffixes=("", "_right"))
+        merged = ylre_areas.merge(clipped_result, how="outer", indicator=True, on="gml_id", suffixes=("", "_right"))
         not_clipped = merged[merged["_merge"] == "left_only"].copy()
         not_clipped.drop("_merge", axis=1, inplace=True)
         common_columns = set(ylre_areas.columns).intersection(not_clipped.columns)
@@ -273,6 +286,10 @@ class Liikennevaylat(GisProcessor):
 
         # Adding not clipped objects
         retval = gpd.GeoDataFrame(pd.concat([retval, not_clipped], ignore_index=True))
+        for attr in dissolve_attrs:
+            retval[attr] = retval[attr].fillna("")
+        retval = retval.dissolve(by=dissolve_attrs, as_index=False)
+        retval = retval.explode(ignore_index=True)
 
         return retval
 
@@ -302,11 +319,15 @@ class Liikennevaylat(GisProcessor):
         target_infra_polys = self._buffering(target_infra_polys)
 
         # Clip by using YLRE katuosa areas
-        target_infra_polys = self._clip_by_ylre_classes_areas(target_infra_polys)
+        geometryToClipAttrsDissolve = ["street_class", "silta_alikulku", "yksisuuntaisuus"]
+        maskAttrsDissolve = ["ylre_street_area", "kadun_nimi"]
+        target_infra_polys = clipAreasByAreas(target_infra_polys, self._ylre_katuosat, geometryToClipAttrsDissolve, maskAttrsDissolve, "gml_id", "index_right")
 
         # Dissolve areas using attributes street_class and silta_alikulku as grouping factor
         dissolve_attrs = ["street_class", "silta_alikulku"]
-        target_infra_polys = target_infra_polys.dissolve(by=dissolve_attrs, as_index=False)
+        for attr in dissolve_attrs:
+            target_infra_polys[attr] = target_infra_polys[attr].fillna("")
+        #target_infra_polys = target_infra_polys.dissolve(by=dissolve_attrs, as_index=False)
 
         # Explode multipolygon to polygons
         target_infra_polys = target_infra_polys.explode(ignore_index=True)
