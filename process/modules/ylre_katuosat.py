@@ -27,7 +27,7 @@ class YlreKatuosat:
             "Silta - Ajorata, muu (Silta)",
             "Silta - Koroke (Silta)",
         ]
-        df = df[df["ylre_types_concat"].isin(selected_types)].loc[:, ["geometry"]]
+        df = df[df["ylre_types_concat"].isin(selected_types)].loc[:, ["geometry", "kadun_nimi"]]
         df["ylre_street_area"] = 1
         df["fid"] = df.reset_index().index
         self._df = df.set_index("fid")
