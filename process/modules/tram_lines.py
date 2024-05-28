@@ -6,7 +6,6 @@ from shapely.errors import ShapelyDeprecationWarning
 from shapely.geometry import LineString, Point
 import warnings
 
-
 from modules.config import Config
 from modules.gis_processing import GisProcessor
 
@@ -27,6 +26,11 @@ class TramLines(GisProcessor):
         self._orig = None
         self._module = "tram_lines"
         self._store_original_data = cfg.store_orinal_data(self._module)
+
+        # Loading ylre_katualueet dataset
+        ylre_katualueet_filename = cfg.target_buffer_file("ylre_katualueet")
+        self._ylre_katualueet = gpd.read_file(ylre_katualueet_filename)
+        self._ylre_katualueet_sindex = self._ylre_katualueet.sindex
 
         file_name = cfg.local_file(self._module)
         self._feed = gk.read_feed(file_name, dist_units="km")
@@ -66,6 +70,56 @@ class TramLines(GisProcessor):
         shp_lines = shp_lines.to_crs(self._cfg.crs())
         return shp_lines
 
+    def _clipAreasByAreas(self, geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, geometryToClipAttrsDissolve, maskAttrsDissolve, mergeIdField, geometryToClipCheckAttr=None) -> gpd.GeoDataFrame:
+        geometry = geometryToClip[~geometryToClip.is_empty]
+        for attr in maskAttrsDissolve:
+            mask[attr] = mask[attr].fillna("")
+
+        if maskAttrsDissolve:
+            mask_dissolved = mask.dissolve(by=maskAttrsDissolve, as_index=False)
+        else:
+            mask_dissolved = mask
+
+        mask_dissolved = mask_dissolved.explode(ignore_index=True)
+
+        if geometryToClipCheckAttr is not None:
+            geometryToClipOnlyCheckObjects = geometry[geometry[geometryToClipCheckAttr].notnull()]
+            geometryToClipNotCheckObjects = geometry.loc[~geometry[geometryToClipCheckAttr].notnull()]
+        else:
+            geometryToClipOnlyCheckObjects = geometry
+
+        geometryToClipOnlyCheckObjects = geometryToClipOnlyCheckObjects.explode(ignore_index=True)
+        # Actual clipping:
+        clipped_result=gpd.clip(geometryToClipOnlyCheckObjects, mask_dissolved)
+        clipped_result = clipped_result.explode(ignore_index=True)
+        clipped_result.geometry = clipped_result.apply(lambda row: make_valid(row.geometry) if not row.geometry.is_valid else row.geometry, axis=1)
+        geometryToClipOnlyCheckObjects.geometry = geometryToClipOnlyCheckObjects.apply(lambda row: make_valid(row.geometry) if not row.geometry.is_valid else row.geometry, axis=1)
+
+        # Getting objects which were not clipped
+        merged = geometryToClipOnlyCheckObjects.merge(clipped_result, how="outer", indicator=True, on=mergeIdField, suffixes=("", "_right"))
+        not_clipped = merged[merged["_merge"] == "left_only"].copy()
+        not_clipped.drop("_merge", axis=1, inplace=True)
+        common_columns = set(geometryToClipOnlyCheckObjects.columns).intersection(not_clipped.columns)
+        common_columns.add(geometryToClipOnlyCheckObjects.geometry.name)
+        common_columns_list = list(common_columns)
+        not_clipped = not_clipped[common_columns_list].copy()
+
+        # Adding clipped results to objects which were not checked at all
+        if geometryToClipCheckAttr is not None:
+            retval = gpd.GeoDataFrame(pd.concat([geometryToClipNotCheckObjects, clipped_result], ignore_index=True))
+        else:
+            retval = clipped_result
+
+        # Adding not clipped objects
+        retval = gpd.GeoDataFrame(pd.concat([retval, not_clipped], ignore_index=True))
+        for attr in geometryToClipAttrsDissolve:
+            retval[attr] = retval[attr].fillna("")
+        if geometryToClipAttrsDissolve:
+            retval = retval.dissolve(by=geometryToClipAttrsDissolve, as_index=False)
+        retval = retval.explode(ignore_index=True)
+
+        return retval
+
     def process(self):
         tram_trips = self._tram_trips()
         line_shapes = self._line_shapes()
@@ -79,6 +133,10 @@ class TramLines(GisProcessor):
 
         self._process_result_lines = shapes_and_trips
 
+        # Mark objects which are within YLRE katualueet areas
+        self._process_result_lines["id"] = self._process_result_lines.index + 1 # Adding temporary id field for clipping
+        self._process_result_lines = gpd.overlay(self._process_result_lines, self._ylre_katualueet, how="union", keep_geom_type=True).explode().reset_index(drop=True)
+
         buffers = self._cfg.buffer(self._module)
         if len(buffers) != 1:
             raise ValueError("Unknown number of buffer values")
@@ -86,6 +144,15 @@ class TramLines(GisProcessor):
         # buffer lines
         target_lines_polys = self._process_result_lines.copy()
         target_lines_polys["geometry"] = target_lines_polys.buffer(buffers[0])
+
+        # Clip by using YLRE katualueet areas
+        geometryToClipAttrsDissolve = ["lines"]
+        maskAttrsDissolve = ["ylre_class"]
+        target_lines_polys = self._clipAreasByAreas(target_lines_polys, self._ylre_katualueet, geometryToClipAttrsDissolve, maskAttrsDissolve, "id", "ylre_class")
+        target_lines_polys.drop(columns=["id", "ylre_class", "kadun_nimi"], inplace=True) # Dropping temporary id field
+        for attr in geometryToClipAttrsDissolve:
+            target_lines_polys[attr] = target_lines_polys[attr].fillna("")
+        target_lines_polys = target_lines_polys.dissolve(by=geometryToClipAttrsDissolve, as_index=False)
 
         # Only intersecting routes to Helsinki area are important
         # read Helsinki geographical region and reproject
@@ -98,6 +165,8 @@ class TramLines(GisProcessor):
             raise e
 
         target_lines_polys = gpd.clip(target_lines_polys, helsinki_region_polygon)
+
+        target_lines_polys = target_lines_polys.explode(ignore_index=True)
 
         # save to instance
         self._process_result_polygons = target_lines_polys
