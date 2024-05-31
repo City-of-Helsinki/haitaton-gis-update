@@ -6,7 +6,7 @@ for tormays_source in $*
 do
     case $tormays_source in
     hsl)
-        sources="${sources} hsl hki"
+        sources="${sources} hsl hki ylre_katuosat"
         ;;
     tram_infra)
         sources="${sources} hki osm helsinki_osm_lines"
@@ -35,6 +35,7 @@ if [ "$RESULT1" != "0" ]; then
     echo -e "Fetching exit Code:" $RESULT1"\nFAILED to fetch data."
     exit 0
 else
+    sources=""
     for tormays_source in $*
     do
         # Process data
@@ -45,6 +46,9 @@ else
             ;;
         cycle_infra)
             /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katualueet $tormays_source
+            ;;
+        hsl)
+            /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katuosat $tormays_source
             ;;
         *)
             /opt/venv/bin/python /haitaton-gis/process_data.py $tormays_source

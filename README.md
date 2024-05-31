@@ -177,14 +177,15 @@ Currently supported processing targets are:
 
 ### `hsl`
 
-Prerequisite: downloaded `hsl` and `hki` materials.
+Prerequisite: downloaded ´ylre_katuosat´, `hsl` and `hki` materials.
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch hsl hki
+docker-compose run --rm gis-fetch hsl hki ylre_katuosat
+docker-compose run --rm gis-process ylre_katuosat
 docker-compose run --rm gis-process hsl
 docker-compose stop gis-db
 ```
