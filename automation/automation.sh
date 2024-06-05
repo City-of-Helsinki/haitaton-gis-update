@@ -52,6 +52,7 @@ else
             ;;
         hsl)
             /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katuosat $tormays_source
+            ;;
         tram_infra)
             /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katualueet $tormays_source
             ;;
@@ -64,7 +65,7 @@ else
         esac
         RESULT2="$?"
         if [ "$RESULT2" != "0" ]; then
-            echo -e "Processing exit Code:" $RESULT1"\nFAILED to process data."
+            echo -e "Processing exit Code:" $RESULT2"\nFAILED to process data."
         else
             # Validate and deploy data
             echo "Validating and deploing $tormays_source ..."
