@@ -5,7 +5,7 @@ hsl:
   target_buffer_file: "tormays_buses_polys.gpkg"
   tormays_table_org: "tormays_buses_polys"
   validate_limit_min: 0.90
-  validate_limit_max: 1.15
+  validate_limit_max: 1.24
   buffer:
     - 15
   store_orinal_data: False
