@@ -11,10 +11,10 @@ do
         sources="${sources} hsl hki"
         ;;
     tram_infra)
-        sources="${sources} hki osm helsinki_osm_lines"
+        sources="${sources} hki osm helsinki_osm_lines ylre_katualueet"
         ;;
     tram_lines)
-        sources="${sources} hki hsl"
+        sources="${sources} hki hsl ylre_katualueet"
         ;;
     liikennevaylat)
         sources="${sources} liikennevaylat central_business_area ylre_katuosat"
@@ -47,6 +47,12 @@ else
             /opt/venv/bin/python /haitaton-gis/process_data.py central_business_area ylre_katuosat $tormays_source
             ;;
         cycle_infra)
+            /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katualueet $tormays_source
+            ;;
+        tram_infra)
+            /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katualueet $tormays_source
+            ;;
+        tram_lines)
             /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katualueet $tormays_source
             ;;
         *)
