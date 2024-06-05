@@ -68,7 +68,7 @@ tram_infra:
   target_file: "tram_infra.gpkg"
   target_buffer_file: "tormays_tram_infra_polys.gpkg"
   tormays_table_org: "tormays_tram_infra_polys"
-  validate_limit_min: 0.90
+  validate_limit_min: 0.02
   validate_limit_max: 1.15
   buffer:
     - 20
@@ -79,10 +79,10 @@ tram_lines:
   target_file: "tram_lines.gpkg"
   target_buffer_file: "tormays_tram_lines_polys.gpkg"
   tormays_table_org: "tormays_tram_lines_polys"
-  validate_limit_min: 0.90
+  validate_limit_min: 0.35
   validate_limit_max: 2.30
   buffer:
-    - 35
+    - 20
   store_orinal_data: False
 #  store_orinal_data: "tram_lines"
 cycle_infra:

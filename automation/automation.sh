@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Started with targets $* ..."
+
 # Collect the sources needed for all targets:
 sources=""
 for tormays_source in $*
@@ -9,10 +11,10 @@ do
         sources="${sources} hsl hki ylre_katuosat"
         ;;
     tram_infra)
-        sources="${sources} hki osm helsinki_osm_lines"
+        sources="${sources} hki osm helsinki_osm_lines ylre_katualueet"
         ;;
     tram_lines)
-        sources="${sources} hki hsl"
+        sources="${sources} hki hsl ylre_katualueet"
         ;;
     liikennevaylat)
         sources="${sources} liikennevaylat central_business_area ylre_katuosat"
@@ -27,8 +29,9 @@ do
 done
 # De-duplicate the sources
 sources=$(echo "$sources" | xargs -n1 | cat -n | sort -k2 | uniq -f1 | sort -k1 | cut -f2- |  xargs)
+
 # Fetch the sources
-echo "Fetching $* ..."
+echo "Fetching $sources ..."
 sh /haitaton-gis/fetch_all.sh ${sources}
 RESULT1="$?"
 if [ "$RESULT1" != "0" ]; then
@@ -49,6 +52,11 @@ else
             ;;
         hsl)
             /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katuosat $tormays_source
+        tram_infra)
+            /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katualueet $tormays_source
+            ;;
+        tram_lines)
+            /opt/venv/bin/python /haitaton-gis/process_data.py ylre_katualueet $tormays_source
             ;;
         *)
             /opt/venv/bin/python /haitaton-gis/process_data.py $tormays_source
@@ -61,6 +69,9 @@ else
             # Validate and deploy data
             echo "Validating and deploing $tormays_source ..."
             /opt/venv/bin/python /haitaton-gis-validate-deploy/validate_deploy_data.py $tormays_source
+            echo "Deployed $tormays_source."
         fi
     done
 fi
+
+echo "All targets deployed."

@@ -261,14 +261,15 @@ Files (names configured in `config.yaml`)
 
 ### `tram_infra`
 
-Prerequisite: fetched `osm`, `hki` and `helsinki_osm_lines` -materials.
+Prerequisite: fetched `ylre_katualueet`, `osm`, `hki` and `helsinki_osm_lines` -materials.
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch hki osm helsinki_osm_lines
+docker-compose run --rm gis-fetch hki osm helsinki_osm_lines ylre_katualueet
+docker-compose run --rm gis-process ylre_katualueet
 docker-compose run --rm gis-process tram_infra
 docker-compose stop gis-db
 ```
@@ -283,14 +284,15 @@ Output files (names configured in `config.yaml`)
 
 ### `tram_lines`
 
-Prerequisite: fetched `hsl` and `hki` -materials.
+Prerequisite: fetched `ylre_katualueet`, `hsl` and `hki` -materials.
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch hki hsl
+docker-compose run --rm gis-fetch hki hsl ylre_katualueet
+docker-compose run --rm gis-process ylre_katualueet
 docker-compose run --rm gis-process tram_lines
 docker-compose stop gis-db
 ```
