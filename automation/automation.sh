@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Started with targets $* ..."
+
 # Collect the sources needed for all targets:
 sources=""
 for tormays_source in $*
@@ -27,8 +29,9 @@ do
 done
 # De-duplicate the sources
 sources=$(echo "$sources" | xargs -n1 | cat -n | sort -k2 | uniq -f1 | sort -k1 | cut -f2- |  xargs)
+
 # Fetch the sources
-echo "Fetching $* ..."
+echo "Fetching $sources ..."
 sh /haitaton-gis/fetch_all.sh ${sources}
 RESULT1="$?"
 if [ "$RESULT1" != "0" ]; then
@@ -57,6 +60,9 @@ else
             # Validate and deploy data
             echo "Validating and deploing $tormays_source ..."
             /opt/venv/bin/python /haitaton-gis-validate-deploy/validate_deploy_data.py $tormays_source
+            echo "Deployed $tormays_source."
         fi
     done
 fi
+
+echo "All targets deployed."

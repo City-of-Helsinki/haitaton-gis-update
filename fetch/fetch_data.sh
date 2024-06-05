@@ -62,7 +62,7 @@ extra_quoted_args=$(parse_config $(cfg_extra_quoted_args $data_object))
 
 case $data_object in
 hsl)
-    wget -O "$local_file" "$addr"
+    wget --progress=dot:mega -O "$local_file" "$addr"
     ;;
 # plain WFS fetch
 hki|ylre_katualueet|ylre_katuosat|maka_autoliikennemaarat|osm|helsinki_osm_lines|central_business_area)
