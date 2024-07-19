@@ -129,7 +129,7 @@ class CycleInfra(GisProcessor):
             "id",
             "uuid",
             "hierarkia_yksisuuntaisuus",
-            "index_right0",
+            "ylre_class",
         ]
 
         self._lines = gpd.read_file(file_name)
@@ -183,7 +183,7 @@ class CycleInfra(GisProcessor):
         ylre_katualueet_dissolved = self._ylre_katualueet.dissolve(by=attrs)
         joined_result = gpd.sjoin(lines, ylre_katualueet_dissolved, predicate='within')
 
-        retval = lines.merge(joined_result[['uuid', 'index_right0', 'index_right1']], how='left', left_on='uuid', right_on='uuid')
+        retval = lines.merge(joined_result[['uuid','ylre_class','kadun_nimi']], how='left', left_on='uuid', right_on='uuid')
 
         return retval
 
@@ -209,6 +209,10 @@ class CycleInfra(GisProcessor):
         # Drop dublicates
         self._process_result_lines.drop_duplicates(subset=["gml_id"], inplace=True)
 
+        # Drop "Muu yhteys" objects which are not containing "pyörö" string in "alatyyppi"
+        filtered_gdf = self._process_result_lines[(~self._process_result_lines["alatyyppi"].str.contains("pyörä", case=False)) & (self._process_result_lines["hierarkia"] == "Muu yhteys")]
+        self._process_result_lines = self._process_result_lines[~self._process_result_lines.index.isin(filtered_gdf.index)]
+
         # Mark objects which are within YLRE katualueet areas
         self._process_result_lines = self._check_and_set_ylre_classes_id(self._process_result_lines)
 
@@ -221,7 +225,7 @@ class CycleInfra(GisProcessor):
         target_infra_polys = self._process_result_lines.copy()
         target_infra_polys = self._buffering(target_infra_polys)
 
-        target_infra_polys.rename(columns={"index_right1": "kadun_nimi"}, inplace=True)
+#        target_infra_polys.rename(columns={"index_right1": "kadun_nimi"}, inplace=True)
         # Drop unnecessary columns
         target_infra_polys = self._drop_unnecessary_columns(
             self._dropped_columns, target_infra_polys
