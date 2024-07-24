@@ -225,7 +225,6 @@ class CycleInfra(GisProcessor):
         target_infra_polys = self._process_result_lines.copy()
         target_infra_polys = self._buffering(target_infra_polys)
 
-#        target_infra_polys.rename(columns={"index_right1": "kadun_nimi"}, inplace=True)
         # Drop unnecessary columns
         target_infra_polys = self._drop_unnecessary_columns(
             self._dropped_columns, target_infra_polys
