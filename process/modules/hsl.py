@@ -6,6 +6,7 @@ from os import path
 import pandas as pd
 from parse import parse
 import re
+import fiona
 from shapely.errors import ShapelyDeprecationWarning
 from shapely.geometry import Point, LineString
 from sqlalchemy import create_engine
@@ -55,7 +56,11 @@ class HslBuses(GisProcessor):
 
     def _read_feed_data(self, file_name) -> gk.Feed:
         """Read feed data from zip file"""
-        feed = gk.read_feed(file_name, dist_units="km")
+        try:
+            feed = (gk.read_feed(file_name, dist_units="km"))
+        except Exception as error:
+            print("An error occurred:", error)
+            exit()
         return feed
 
     def feed(self) -> gk.Feed:
@@ -355,6 +360,8 @@ class HslBuses(GisProcessor):
 
         # Getting objects which were not clipped
         geometryToClipOnlyCheckObjects = geometryToClipOnlyCheckObjects.dissolve(by=geometryToClipAttrsDissolve, as_index=False)
+        clipped_result["geometry"] = clipped_result["geometry"].buffer(10)
+        clipped_result["geometry"] = clipped_result["geometry"].buffer(-10)
         clipped_result = clipped_result.dissolve(by=geometryToClipAttrsDissolve, as_index=False)
         merged = geometryToClipOnlyCheckObjects.merge(clipped_result, how="outer", indicator=True, on=mergeIdField, suffixes=("", "_right"))
         not_clipped = merged[merged["_merge"] == "left_only"].copy()
@@ -384,7 +391,6 @@ class HslBuses(GisProcessor):
         # main part of processing is initiated here
         self._process_result_lines = self._process_hsl_bus_lines()
         self._orig = self._process_result_lines
-        self._process_result_lines.to_file("/gis-output/1_process_result_lines.gpkg", driver="GPKG")
 
         # Mark objects which are within YLRE katuosa areas
         self._process_result_lines["id"] = self._process_result_lines.index + 1 # Adding temporary id field for clipping
@@ -461,4 +467,4 @@ class HslBuses(GisProcessor):
         schema["properties"]["rush_hour"] = "int32"
         schema["properties"]["direction_id"] = "int32"
 
-        tormays_polygons.to_file(target_buffer_file_name, schema=schema, driver="GPKG")
+        tormays_polygons.to_file(target_buffer_file_name, schema=schema, engine="fiona", driver="GPKG")

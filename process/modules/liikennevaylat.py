@@ -72,7 +72,7 @@ class Liikennevaylat(GisProcessor):
             "yksisuuntaisuus",
             "IsInsideArea",
             "IntersectsArea",
-            "index_right",
+            "ylre_street_area",
         ]
 
         # Following main and sub type combinations can be removed from data
@@ -240,7 +240,7 @@ class Liikennevaylat(GisProcessor):
         ylre_katuosat_dissolved["geometry"] = ylre_katuosat_dissolved.buffer(15)
         joined_result = gpd.sjoin(lines, ylre_katuosat_dissolved, predicate='within')
 
-        retval = lines.merge(joined_result[['uuid', 'index_right']], how='left', left_on='uuid', right_on='uuid')
+        retval = lines.merge(joined_result[['uuid', 'ylre_street_area']], how='left', left_on='uuid', right_on='uuid')
 
         return retval
 
@@ -263,7 +263,7 @@ class Liikennevaylat(GisProcessor):
         dissolve_attrs = ["ylre_street_area"]
         ylre_katuosat_dissolved = mask.dissolve(by=dissolve_attrs, as_index=False)
         ylre_katuosat_dissolved = ylre_katuosat_dissolved.explode(ignore_index=True)
-        ylre_areas = geometry[geometry["index_right"].notnull()]
+        ylre_areas = geometry[geometry["ylre_street_area"].notnull()]
         dissolve_attrs = ["street_class", "silta_alikulku", "yksisuuntaisuus"]
         for attr in dissolve_attrs:
             ylre_areas[attr] = ylre_areas[attr].fillna("")
@@ -282,7 +282,7 @@ class Liikennevaylat(GisProcessor):
         not_clipped = not_clipped[common_columns_list].copy()
 
         # Adding clipped results to objects which were not interacting with YLRE areas at all
-        retval = gpd.GeoDataFrame(pd.concat([geometry.loc[~geometry["index_right"].notnull()], clipped_result], ignore_index=True))
+        retval = gpd.GeoDataFrame(pd.concat([geometry.loc[~geometry["ylre_street_area"].notnull()], clipped_result], ignore_index=True))
 
         # Adding not clipped objects
         retval = gpd.GeoDataFrame(pd.concat([retval, not_clipped], ignore_index=True))
@@ -321,7 +321,7 @@ class Liikennevaylat(GisProcessor):
         # Clip by using YLRE katuosa areas
         geometryToClipAttrsDissolve = ["street_class", "silta_alikulku", "yksisuuntaisuus"]
         maskAttrsDissolve = ["ylre_street_area", "kadun_nimi"]
-        target_infra_polys = clipAreasByAreas(target_infra_polys, self._ylre_katuosat, geometryToClipAttrsDissolve, maskAttrsDissolve, "gml_id", "index_right")
+        target_infra_polys = clipAreasByAreas(target_infra_polys, self._ylre_katuosat, geometryToClipAttrsDissolve, maskAttrsDissolve, "gml_id", "ylre_street_area")
 
         # Dissolve areas using attributes street_class and silta_alikulku as grouping factor
         dissolve_attrs = ["street_class", "silta_alikulku"]

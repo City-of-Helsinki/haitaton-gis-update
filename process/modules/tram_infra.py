@@ -1,5 +1,6 @@
 import geopandas as gpd
 import pandas as pd
+import fiona
 from sqlalchemy import create_engine, text
 
 from modules.config import Config
@@ -44,7 +45,7 @@ class TramInfra(GisProcessor):
         self._module = "tram_infra"
         self._store_original_data = cfg.store_orinal_data(self._module)
         file_name = cfg.local_file(self._module)
-        self._lines = gpd.read_file(file_name)
+        self._lines = gpd.read_file(filename=file_name)
 
     def _clipAreasByAreas(self, geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, geometryToClipAttrsDissolve, maskAttrsDissolve, mergeIdField, geometryToClipCheckAttr=None) -> gpd.GeoDataFrame:
         geometry = geometryToClip[~geometryToClip.is_empty]
@@ -187,7 +188,7 @@ class TramInfra(GisProcessor):
         schema = gpd.io.file.infer_schema(tram_lines)
         schema["properties"]["infra"] = "int32"
 
-        tram_lines.to_file(target_infra_file_name, schema=schema, driver="GPKG")
+        tram_lines.to_file(target_infra_file_name, schema=schema, engine="fiona", driver="GPKG")
 
         # tormays GIS material
         target_buffer_file_name = self._cfg.target_buffer_file(self._module)
@@ -199,4 +200,4 @@ class TramInfra(GisProcessor):
         schema = gpd.io.file.infer_schema(tormays_polygons)
         schema["properties"]["infra"] = "int32"
 
-        tormays_polygons.to_file(target_buffer_file_name, schema=schema, driver="GPKG")
+        tormays_polygons.to_file(target_buffer_file_name, schema=schema, engine="fiona", driver="GPKG")
