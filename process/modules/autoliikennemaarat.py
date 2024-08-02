@@ -1,4 +1,5 @@
 import geopandas as gpd
+import fiona
 from sqlalchemy import create_engine
 
 
@@ -63,4 +64,4 @@ class MakaAutoliikennemaarat:
 
             schema = gpd.io.file.infer_schema(polygons)
             schema["properties"]["volume"] = "int32"
-            polygons.to_file(file_name, schema=schema, driver="GPKG")
+            polygons.to_file(file_name, schema=schema, engine="fiona", driver="GPKG")

@@ -5,6 +5,7 @@ import gtfs_kit as gk
 from shapely.errors import ShapelyDeprecationWarning
 from shapely.geometry import LineString, Point
 import warnings
+import fiona
 
 from modules.config import Config
 from modules.gis_processing import GisProcessor
@@ -196,7 +197,7 @@ class TramLines(GisProcessor):
         schema = gpd.io.file.infer_schema(tram_lines)
         schema["properties"]["lines"] = "int32"
 
-        tram_lines.to_file(target_infra_file_name, schema=schema, driver="GPKG")
+        tram_lines.to_file(target_infra_file_name, schema=schema, engine="fiona", driver="GPKG")
 
         # tormays GIS material
         target_buffer_file_name = self._cfg.target_buffer_file(self._module)
@@ -208,4 +209,4 @@ class TramLines(GisProcessor):
         schema = gpd.io.file.infer_schema(tormays_polygons)
         schema["properties"]["lines"] = "int32"
 
-        tormays_polygons.to_file(target_buffer_file_name, schema=schema, driver="GPKG")
+        tormays_polygons.to_file(target_buffer_file_name, schema=schema, engine="fiona", driver="GPKG")
