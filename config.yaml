@@ -69,7 +69,7 @@ tram_infra:
   target_buffer_file: "tormays_tram_infra_polys.gpkg"
   tormays_table_org: "tormays_tram_infra_polys"
   validate_limit_min: 0.02
-  validate_limit_max: 1.15
+  validate_limit_max: 4.0
   buffer:
     - 20
   store_orinal_data: False
@@ -79,7 +79,7 @@ tram_lines:
   target_file: "tram_lines.gpkg"
   target_buffer_file: "tormays_tram_lines_polys.gpkg"
   tormays_table_org: "tormays_tram_lines_polys"
-  validate_limit_min: 0.35
+  validate_limit_min: 0.20
   validate_limit_max: 2.30
   buffer:
     - 20
@@ -101,8 +101,8 @@ cycle_infra:
     kaksisuuntainen_baana: 2.5
   buffer:
     - 20
-#  store_orinal_data: False
-  store_orinal_data: "cycle_infra_test"
+  store_orinal_data: False
+#  store_orinal_data: "cycle_infra_test"
   ylre_street_class_buffer: 10
 liikennevaylat:
   addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
@@ -113,7 +113,7 @@ liikennevaylat:
   extra_args: "-nlt CONVERT_TO_LINEAR"
   tormays_table_org: "tormays_street_classes_polys"
   validate_limit_min: 0.07
-  validate_limit_max: 1.15
+  validate_limit_max: 5
   buffer_class_values:
     paakatu_tai_moottorivayla: 10
     alueellinen_kokoojakatu: 7
