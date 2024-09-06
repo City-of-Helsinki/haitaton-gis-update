@@ -250,7 +250,7 @@ class Liikennevaylat(GisProcessor):
         retval = target_infra_polys[0:0]
         for buffer_class, buffer_value in self._buffers.items():
             buffered_items = target_infra_polys.loc[target_infra_polys["street_class"].isin(self._buffer_class_street_class_values[buffer_class])].copy()
-            buffered_items["geometry"] = buffered_items.buffer(buffer_value, cap_style=2)
+            buffered_items["geometry"] = buffered_items.buffer(buffer_value)
             retval = gpd.GeoDataFrame(pd.concat([retval, buffered_items], ignore_index=True))
 
         return retval

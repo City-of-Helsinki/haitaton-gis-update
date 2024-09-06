@@ -37,7 +37,7 @@ ylre_katualueet:
 #  store_orinal_data: "ylre_classes_orig_polys"
 ylre_katuosat:
   addr: "WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs"
-  layer: "avoindata:YLRE_Katuosat_alue"
+  layer: "avoindata:YLRE_Katuosat_alue avoindata:YLRE_Viherosat_alue"
   local_file: "ylre_katuosat_alue.gpkg"
   target_file: "ylre_parts_orig_polys.gpkg"
   target_buffer_file: "tormays_ylre_parts_polys.gpkg"
@@ -118,8 +118,8 @@ liikennevaylat:
     paakatu_tai_moottorivayla: 10
     alueellinen_kokoojakatu: 7
     paikallinen_kokoojakatu: 5
-    kantakaupungin_asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 5
-    asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 2
+    kantakaupungin_asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 6
+    asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 10
   store_orinal_data: False
 #  store_orinal_data: "liikennevaylat"
 central_business_area:
