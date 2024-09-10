@@ -1,10 +1,12 @@
+import logging
 import geopandas as gpd
 import pandas as pd
-import fiona
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 
 from modules.config import Config
 from modules.gis_processing import GisProcessor
+
+logger = logging.getLogger(__name__)
 
 # SettingWithCopyWarning warning disabling
 pd.options.mode.chained_assignment = None
@@ -153,7 +155,7 @@ class TramInfra(GisProcessor):
                 filename=self._cfg.local_file("hki")
             ).to_crs(self._cfg.crs())
         except Exception as e:
-            print("Area polygon file not found!")
+            logger.error("Area polygon file not found!")
             raise e
 
         target_infra_polys = gpd.clip(target_infra_polys, helsinki_region_polygon)
