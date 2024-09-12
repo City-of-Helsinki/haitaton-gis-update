@@ -70,7 +70,7 @@ class CycleInfra(GisProcessor):
                 "Ulkoilureitti",
                 "Kulkuväylä aukiolla",
                 "Suojatie",
-#                "Puistotie- tai väylä",
+                "Puistotie- tai väylä",
             ],
         }
 
