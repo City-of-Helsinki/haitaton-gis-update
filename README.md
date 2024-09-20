@@ -354,17 +354,19 @@ Output files (names configured in `config.yaml`)
 Prerequisite:
 - `central_business_area` material fetched
 - `ylre_katuosat` material fetched
+- `ylre_katualueet` material fetched
 - `liikennevaylat` material fetched
 - `central_business_area` material processed
 - `ylre_katuosat` material processed
+- `ylre_katualueet` material processed
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch liikennevaylat central_business_area ylre_katuosat
-docker-compose run --rm gis-process central_business_area ylre_katuosat
+docker-compose run --rm gis-fetch liikennevaylat central_business_area ylre_katuosat ylre_katualueet
+docker-compose run --rm gis-process central_business_area ylre_katuosat ylre_katualueet
 docker-compose run --rm gis-process liikennevaylat
 docker-compose stop gis-db
 ```

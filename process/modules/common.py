@@ -26,6 +26,15 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
     clipped_result = clipped_result.explode(ignore_index=True)
 
     # Getting objects which were not clipped
+    clipped_result["geometry"] = clipped_result.make_valid()
+    clipped_result = clipped_result[clipped_result.geometry.type != 'Point']
+    clipped_result = clipped_result[clipped_result.geometry.type != 'LineString']
+    clipped_result["geometry"] = clipped_result.normalize()
+    clipped_result.drop_duplicates()
+    geometryToClipOnlyCheckObjects["geometry"] = geometryToClipOnlyCheckObjects.make_valid()
+    geometryToClipOnlyCheckObjects["geometry"] = geometryToClipOnlyCheckObjects.normalize()
+    geometryToClipOnlyCheckObjects.drop_duplicates()
+
     merged = geometryToClipOnlyCheckObjects.merge(clipped_result, how="outer", indicator=True, on=mergeIdField, suffixes=("", "_right"))
     not_clipped = merged[merged["_merge"] == "left_only"].copy()
     not_clipped.drop("_merge", axis=1, inplace=True)

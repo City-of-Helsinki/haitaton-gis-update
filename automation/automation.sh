@@ -18,7 +18,7 @@ do
         sources="${sources} hki hsl ylre_katualueet"
         ;;
     liikennevaylat)
-        sources="${sources} liikennevaylat central_business_area ylre_katuosat"
+        sources="${sources} liikennevaylat central_business_area ylre_katuosat ylre_katualueet"
         ;;
     cycle_infra)
         sources="${sources} cycle_infra ylre_katualueet"
@@ -46,7 +46,7 @@ else
         # Process data
         case $tormays_source in
         liikennevaylat)
-            sources="${sources} central_business_area ylre_katuosat $tormays_source"
+            sources="${sources} central_business_area ylre_katuosat ylre_katualueet $tormays_source"
             ;;
         cycle_infra)
             sources="${sources} ylre_katualueet $tormays_source"
