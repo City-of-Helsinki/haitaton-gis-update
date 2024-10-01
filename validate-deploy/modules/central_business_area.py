@@ -1,8 +1,11 @@
+import logging
 from modules.config import Config
 from modules.gis_validate_deploy import GisProcessor
 
 class CentralBusinessAreas(GisProcessor):
     """Process Central Business Areas"""
+
+    logger = logging.getLogger(__name__)
 
     def __init__(self, cfg: Config):
         self._module = "central_business_area"

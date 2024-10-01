@@ -1,3 +1,4 @@
+import logging
 import geopandas as gpd
 import pandas as pd
 from sqlalchemy import create_engine
@@ -5,7 +6,6 @@ import gtfs_kit as gk
 from shapely.errors import ShapelyDeprecationWarning
 from shapely.geometry import LineString, Point
 import warnings
-import fiona
 
 from modules.config import Config
 from modules.gis_processing import GisProcessor
@@ -15,6 +15,8 @@ from modules.gis_processing import GisProcessor
 # 900 = Light rail
 
 TRAM_ROUTE_TYPE = [0, 900]
+
+logger = logging.getLogger(__name__)
 
 class TramLines(GisProcessor):
     """Process tram lines, i.e. schedule information."""
@@ -162,7 +164,7 @@ class TramLines(GisProcessor):
                 filename=self._cfg.local_file("hki")
             ).to_crs(self._cfg.crs())
         except Exception as e:
-            print("Area polygon file not found!")
+            logger.error("Area polygon file not found!")
             raise e
 
         target_lines_polys = gpd.clip(target_lines_polys, helsinki_region_polygon)

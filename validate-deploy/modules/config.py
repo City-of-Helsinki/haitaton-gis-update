@@ -1,5 +1,4 @@
 from __future__ import annotations
-from os.path import exists
 from pathlib import Path
 import yaml
 import os
@@ -108,19 +107,3 @@ class Config:
             port=os.environ.get("HAITATON_PORT",self._cfg.get(deployment, {}).get("database").get("port")),
             dbname=os.environ.get("HAITATON_DATABASE",self._cfg.get(deployment, {}).get("database").get("database")),
             )
-
-    def logging_filename(self) -> str:
-        """Return logging file name information from config file."""
-        return self._cfg.get("logging").get("logging_filename")
-
-    def logging_filemode(self) -> str:
-        """Return logging file mode information from config file."""
-        return self._cfg.get("logging").get("logging_filemode")
-
-    def logging_level(self) -> str:
-        """Return logging file level information from config file."""
-        return self._cfg.get("logging").get("logging_level")
-
-    def logging_format(self) -> str:
-        """Return logging file level information from config file."""
-        return self._cfg.get("logging").get("logging_format")
