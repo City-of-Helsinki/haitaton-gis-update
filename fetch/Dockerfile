@@ -5,11 +5,9 @@ RUN apt-get update  \
     gdal-bin \
     gettext-base \
     libgdal-dev \
-    python3-launchpadlib  \
     software-properties-common \
     wget \
+    yq \
     && apt-get clean
-RUN add-apt-repository ppa:rmescandon/yq
-RUN apt-get install --no-install-recommends -y yq && apt-get clean
 
 ENTRYPOINT [ "sh", "/haitaton-gis/fetch_all.sh" ]
