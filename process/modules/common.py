@@ -13,6 +13,9 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
         mask_dissolved = mask
 
     mask_dissolved = mask_dissolved.explode(ignore_index=True)
+    mask_dissolved["geometry"] = mask_dissolved.make_valid()
+    mask_dissolved["geometry"] = mask_dissolved.normalize()
+    mask_dissolved.drop_duplicates()
 
     if geometryToClipCheckAttr is not None:
         geometryToClipOnlyCheckObjects = geometry[geometry[geometryToClipCheckAttr].notnull()]
@@ -21,6 +24,9 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
         geometryToClipOnlyCheckObjects = geometry
 
     geometryToClipOnlyCheckObjects = geometryToClipOnlyCheckObjects.explode(ignore_index=True)
+    geometryToClipOnlyCheckObjects["geometry"] = geometryToClipOnlyCheckObjects.make_valid()
+    geometryToClipOnlyCheckObjects["geometry"] = geometryToClipOnlyCheckObjects.normalize()
+    geometryToClipOnlyCheckObjects.drop_duplicates()
     # Actual clipping:
     clipped_result=gpd.clip(geometryToClipOnlyCheckObjects, mask_dissolved)
     clipped_result = clipped_result.explode(ignore_index=True)
@@ -31,10 +37,9 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
     clipped_result = clipped_result[clipped_result.geometry.type != 'LineString']
     clipped_result["geometry"] = clipped_result.normalize()
     clipped_result.drop_duplicates()
-    geometryToClipOnlyCheckObjects["geometry"] = geometryToClipOnlyCheckObjects.make_valid()
-    geometryToClipOnlyCheckObjects["geometry"] = geometryToClipOnlyCheckObjects.normalize()
-    geometryToClipOnlyCheckObjects.drop_duplicates()
 
+    clipped_result.reset_index(drop=True)
+    geometryToClipOnlyCheckObjects.reset_index(drop=True)
     merged = geometryToClipOnlyCheckObjects.merge(clipped_result, how="outer", indicator=True, on=mergeIdField, suffixes=("", "_right"))
     not_clipped = merged[merged["_merge"] == "left_only"].copy()
     not_clipped.drop("_merge", axis=1, inplace=True)
@@ -49,6 +54,11 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
 
     # Adding not clipped objects
     retval = gpd.GeoDataFrame(pd.concat([retval, not_clipped], ignore_index=True))
+    retval["geometry"] = retval.make_valid()
+    retval["geometry"] = retval.normalize()
+    retval.drop_duplicates()
+    retval["geometry"] = retval.buffer(0.1)
+    retval["geometry"] = retval.buffer(-0.1)
     for attr in geometryToClipAttrsDissolve:
         retval[attr] = retval[attr].fillna("")
     if geometryToClipAttrsDissolve:
