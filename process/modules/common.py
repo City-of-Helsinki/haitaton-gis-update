@@ -1,8 +1,14 @@
 import geopandas as gpd
 import pandas as pd
 
+def makeValid(geometry: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    geometry["geometry"] = geometry.make_valid()
+    geometry["geometry"] = geometry.normalize()
+    geometry.drop_duplicates()
 
-def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, geometryToClipAttrsDissolve, maskAttrsDissolve, mergeIdField, geometryToClipCheckAttr=None) -> gpd.GeoDataFrame:
+    return geometry
+
+def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, geometryToClipAttrsDissolve, maskAttrsDissolve, mergeIdField, geometryToClipCheckAttr=None, dissolveBetween=False) -> gpd.GeoDataFrame:
     geometry = geometryToClip[~geometryToClip.is_empty]
     for attr in maskAttrsDissolve:
         mask[attr] = mask[attr].fillna("")
@@ -13,9 +19,7 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
         mask_dissolved = mask
 
     mask_dissolved = mask_dissolved.explode(ignore_index=True)
-    mask_dissolved["geometry"] = mask_dissolved.make_valid()
-    mask_dissolved["geometry"] = mask_dissolved.normalize()
-    mask_dissolved.drop_duplicates()
+    mask_dissolved = makeValid(mask_dissolved)
 
     if geometryToClipCheckAttr is not None:
         geometryToClipOnlyCheckObjects = geometry[geometry[geometryToClipCheckAttr].notnull()]
@@ -32,11 +36,12 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
     clipped_result = clipped_result.explode(ignore_index=True)
 
     # Getting objects which were not clipped
-    clipped_result["geometry"] = clipped_result.make_valid()
+    clipped_result = makeValid(clipped_result)
     clipped_result = clipped_result[clipped_result.geometry.type != 'Point']
     clipped_result = clipped_result[clipped_result.geometry.type != 'LineString']
-    clipped_result["geometry"] = clipped_result.normalize()
-    clipped_result.drop_duplicates()
+
+    if dissolveBetween:
+        clipped_result = clipped_result.dissolve(by=geometryToClipAttrsDissolve, as_index=False)
 
     clipped_result.reset_index(drop=True)
     geometryToClipOnlyCheckObjects.reset_index(drop=True)
@@ -54,11 +59,12 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
 
     # Adding not clipped objects
     retval = gpd.GeoDataFrame(pd.concat([retval, not_clipped], ignore_index=True))
-    retval["geometry"] = retval.make_valid()
-    retval["geometry"] = retval.normalize()
-    retval.drop_duplicates()
+    retval = makeValid(retval)
+
+    # Make a small buffer and take it back to get rid of intersection problems
     retval["geometry"] = retval.buffer(0.1)
     retval["geometry"] = retval.buffer(-0.1)
+
     for attr in geometryToClipAttrsDissolve:
         retval[attr] = retval[attr].fillna("")
     if geometryToClipAttrsDissolve:
