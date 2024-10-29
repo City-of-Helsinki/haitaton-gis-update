@@ -13,10 +13,10 @@ def get_data_count(pg_conn_uri, counted_table, logger=None):
         except ProgrammingError:
             data_amount = -1
             count_result = None
-            logger.exception()
+            logger.warn("Programming error while getting table data counts.", exc_info=True)
         except Exception:
             count_result = None
-            logger.exception()
+            logger.exception("Unknown exception getting table data counts.")
 
     if count_result:
         for row in count_result:
@@ -74,7 +74,7 @@ def validate_data_count_limits(
             logger.info("Data amount is within given limits")
             return True
     elif old_amount == -1:
-        logger.error("Tormays table %s does not exist.", tormays_table_org)
+        logger.warn("Tormays table %s does not exist.", tormays_table_org)
         return True
     else:
         logger.error("Data amount validation failed because of missing configuration.")
@@ -103,4 +103,4 @@ def deploy(pg_conn_uri, tormays_table_org, tormays_file_temp, logger):
             )
         except Exception:
             # Transaction implicitly rolls back if an exception occurred within the "with" block
-            logger.exception()
+            logger.exception("Exception while deploying.")
