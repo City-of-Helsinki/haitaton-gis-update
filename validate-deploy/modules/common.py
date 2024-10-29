@@ -24,7 +24,29 @@ def get_data_count(pg_conn_uri, counted_table, logger=None):
 
     return data_amount
 
-def validate_data_count_limits(module, pg_conn_uri, tormays_table_org, tormays_file_temp, validate_limit_min, validate_limit_max, filename, logger):
+
+def validate_minimal(module, tormays_file_temp, filename, logger):
+    logger.info("Skipping full validation. Module: %s.", module)
+    new_amount = len(tormays_file_temp)
+    logger.info("New data amount (%s): %u", filename, new_amount)
+    if new_amount > 0:
+        logger.info("There is some data, proceeding.")
+        return True
+    else:
+        logger.error("No data found, validation failed.")
+        return False
+
+
+def validate_data_count_limits(
+    module,
+    pg_conn_uri,
+    tormays_table_org,
+    tormays_file_temp,
+    validate_limit_min,
+    validate_limit_max,
+    filename,
+    logger,
+):
     """validate data amount: is it between given limits"""
     logger.info("Data amount validation started")
     logger.info("Module: %s", module)

@@ -93,6 +93,10 @@ class Config:
         """Return buffer value list from configuration."""
         return self._cfg.get(item, {}).get("validate_limit_max")
 
+    def force_deploy(self) -> bool:
+        """Skip validation, except that there are some features."""
+        return os.environ.get("GIS_UPDATE_FORCE_DEPLOY", False)
+
     def pg_conn_uri(self, deployment: str = None) -> str:
         """Return PostgreSQL connection URI
 
