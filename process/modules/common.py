@@ -28,9 +28,7 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
         geometryToClipOnlyCheckObjects = geometry
 
     geometryToClipOnlyCheckObjects = geometryToClipOnlyCheckObjects.explode(ignore_index=True)
-    geometryToClipOnlyCheckObjects["geometry"] = geometryToClipOnlyCheckObjects.make_valid()
-    geometryToClipOnlyCheckObjects["geometry"] = geometryToClipOnlyCheckObjects.normalize()
-    geometryToClipOnlyCheckObjects.drop_duplicates()
+    geometryToClipOnlyCheckObjects = makeValid(geometryToClipOnlyCheckObjects)
     # Actual clipping:
     clipped_result=gpd.clip(geometryToClipOnlyCheckObjects, mask_dissolved)
     clipped_result = clipped_result.explode(ignore_index=True)
