@@ -237,6 +237,9 @@ class CycleInfra(GisProcessor):
 
         target_infra_polys = target_infra_polys.dissolve(by=attrs, aggfunc="sum", as_index=False)
 
+        # Set hierarchy alue to "Puistoreitti" where alatyyppi is "Puistotie- tai väylä" and hierarchy is null
+        target_infra_polys.loc[(target_infra_polys["alatyyppi"] == 'Puistotie- tai väylä') & ((target_infra_polys["hierarkia"] == "") | target_infra_polys["hierarkia"].isna()), "hierarkia"] = "Puistoreitti"
+
         # Explode multipolygon to polygons
         target_infra_polys = target_infra_polys.explode(ignore_index=True)
 

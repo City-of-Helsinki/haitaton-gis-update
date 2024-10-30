@@ -133,12 +133,6 @@ central_business_area:
   store_orinal_data: False
 #  store_orinal_data: "Piirijako_pienalue"
 
-logging:
-  logging_filename: ""
-  logging_filemode: "w"
-  logging_level: INFO
-  logging_format: "%(asctime)s - %(levelname)s - %(message)s"
-
 common:
   download_path: "/downloads"
   crs: "EPSG:3879"

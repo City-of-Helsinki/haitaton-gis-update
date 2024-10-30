@@ -1,3 +1,4 @@
+import logging
 from datetime import date, timedelta, datetime, time
 from functools import partial
 import geopandas as gpd
@@ -5,8 +6,6 @@ import gtfs_kit as gk
 from os import path
 import pandas as pd
 from parse import parse
-import re
-import fiona
 from shapely.errors import ShapelyDeprecationWarning
 from shapely.geometry import Point, LineString
 from sqlalchemy import create_engine
@@ -16,6 +15,7 @@ import warnings
 from modules.config import Config
 from modules.gis_processing import GisProcessor
 
+logger = logging.getLogger(__name__)
 
 def as_date(d: str) -> date:
     """Convert string representation to date object"""
@@ -58,8 +58,8 @@ class HslBuses(GisProcessor):
         """Read feed data from zip file"""
         try:
             feed = (gk.read_feed(file_name, dist_units="km"))
-        except Exception as error:
-            print("An error occurred:", error)
+        except Exception:
+            logger.exception("An error occurred:")
             exit()
         return feed
 
@@ -309,7 +309,7 @@ class HslBuses(GisProcessor):
                 filename=self._cfg.local_file("hki")
             ).to_crs(self._cfg.crs())
         except Exception as e:
-            print("Area polygon file not found!")
+            logger.error("Area polygon file not found!")
             raise e
 
         target_routes = (
@@ -421,7 +421,7 @@ class HslBuses(GisProcessor):
                 filename=self._cfg.local_file("hki")
             ).to_crs(self._cfg.crs())
         except Exception as e:
-            print("Area polygon file not found!")
+            logger.error("Area polygon file not found!")
             raise e
 
         target_route_polys = gpd.clip(target_route_polys, helsinki_region_polygon)

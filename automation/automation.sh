@@ -73,7 +73,7 @@ else
         echo -e "Processing exit Code:" $RESULT2"\nFAILED to process data."
     else
         # Validate and deploy data
-        echo "Validating and deploing ${org_sources} ..."
+        echo "Validating and deploying ${org_sources} ..."
         /opt/venv/bin/python /haitaton-gis-validate-deploy/validate_deploy_data.py ${org_sources}
         echo "Deployed ${org_sources}."
     fi

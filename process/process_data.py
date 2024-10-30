@@ -1,5 +1,6 @@
 """Main entrypoint script for material processing.
 """
+import logging
 import os
 import sys
 
@@ -20,7 +21,7 @@ DEFAULT_DEPLOYMENT_PROFILE = "local_development"
 
 
 def process_item(item: str, cfg: Config):
-    print(f"Processing item: {item}")
+    logger.info("Processing item: %s", item)
     gis_processor = instantiate_processor(item, cfg)
     gis_processor.process()
     gis_processor.persist_to_database()
@@ -49,23 +50,22 @@ def instantiate_processor(item: str, cfg: Config) -> GisProcessor:
     elif item == "central_business_area":
         return CentralBusinessAreas(cfg)
     else:
-        try:
-            raise RuntimeError("Configuration not recognized: {}".format(item))
-        except Exception as e:
-            print("{}".format(e))
+        logger.error("Configuration not recognized: %s", item)
 
 
 if __name__ == "__main__":
+    FORMAT = "%(asctime)s - %(levelname)-5s - %(name)-15s - %(message)s"
+    logging.basicConfig(format=FORMAT, level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
     deployment_profile = os.environ.get("TORMAYS_DEPLOYMENT_PROFILE")
     use_deployment_profile = DEFAULT_DEPLOYMENT_PROFILE
     if deployment_profile in ["local_docker_development", "local_development", "docker_development"]:
         use_deployment_profile = deployment_profile
     else:
-        print(
-            "Deployment profile environment variable is not set, defaulting to '{}'".format(
-                DEFAULT_DEPLOYMENT_PROFILE
-            )
+        logger.info(
+            "Deployment profile environment variable is not set, defaulting to %s",
+            DEFAULT_DEPLOYMENT_PROFILE,
         )
 
     cfg = Config().with_deployment_profile(use_deployment_profile)

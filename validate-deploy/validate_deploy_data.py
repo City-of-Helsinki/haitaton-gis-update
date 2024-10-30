@@ -2,6 +2,7 @@
 """
 import os
 import sys
+import logging
 
 from modules.config import Config
 from modules.gis_validate_deploy import GisProcessor
@@ -45,16 +46,19 @@ def instantiate_processor(item: str, cfg: Config) -> GisProcessor:
     elif item == "central_business_area":
         return CentralBusinessAreas(cfg)
     else:
-        print("{}".format(RuntimeError("Configuration not recognized: {}".format(item))))
+        logger.error("Configuration not recognized: {}".format(item))
 
 if __name__ == "__main__":
+    FORMAT = '%(asctime)s - %(levelname)-5s - %(name)-15s - %(message)s'
+    logging.basicConfig(format=FORMAT, level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
     deployment_profile = os.environ.get("TORMAYS_DEPLOYMENT_PROFILE")
     use_deployment_profile = DEFAULT_DEPLOYMENT_PROFILE
     if deployment_profile in ["local_docker_development", "local_development", "docker_development"]:
         use_deployment_profile = deployment_profile
     else:
-        print(
+        logger.info(
             "Deployment profile environment variable is not set, defaulting to '{}'".format(
                 DEFAULT_DEPLOYMENT_PROFILE
             )

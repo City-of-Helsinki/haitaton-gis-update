@@ -27,7 +27,7 @@ class YlreKatualueet:
             elif purpose == "Kokoojakatu tai -tie":
                 retval = "Paikallinen kokoojakatu"
             elif purpose in ["Asuntokatu", "Hidaskatu", "Pihakatu", "Tontti"]:
-                retval = "Tonttikatu tai ajoyhteys"
+                retval = "Asuntokatu, huoltoväylä tai vähäliikenteinen katu"
 
             return retval
 
