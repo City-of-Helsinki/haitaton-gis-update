@@ -64,6 +64,7 @@ hki:
   local_file: helsinki_alue.gpkg
   extra_args: "-nln alue -where kunta='091'"
 tram_infra:
+  addr: "/local_data/train_depots.gpkg"
   local_file: "helsinki-osm-lines.gpkg"
   target_file: "tram_infra.gpkg"
   target_buffer_file: "tormays_tram_infra_polys.gpkg"
@@ -72,6 +73,7 @@ tram_infra:
   validate_limit_max: 4.0
   buffer:
     - 20
+    - 10
   store_orinal_data: False
 #  store_orinal_data: "tram_infra"
 tram_lines:
