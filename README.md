@@ -144,6 +144,7 @@ Where `<source>` is currently one of:
 - `cycle_infra` - Cycle infra (local file)
 - `central_business_area` - Helsinki city "kantakaupunki"
 - `liikennevaylat` - Helsinki city street classes
+- `special_transport_routes` - Helsinki city special transport routes
 
 Data files are downloaded to `./haitaton-downloads` -directory.
 
@@ -379,6 +380,31 @@ Output files (names configured in `config.yaml`)
 
 - street_classes.gpkg
 - tormays_street_classes_polys.gpkg
+
+### `special_transport_routes`
+
+Prerequisite:
+- `ylre_katualueet` material fetched
+- `ylre_katualueet` material processed
+
+Docker example run (ensure that image build and file copying is
+already performed as instructed above):
+
+```sh
+docker-compose up -d gis-db
+docker-compose run --rm gis-fetch special_transport_routes ylre_katualueet
+docker-compose run --rm gis-process ylre_katualueet
+docker-compose run --rm gis-process special_transport_routes
+docker-compose stop gis-db
+```
+
+Processed GIS material is available in:
+haitaton-gis-output
+
+Output files (names configured in `config.yaml`)
+
+- special_transport_routes.gpkg
+- tormays_special_transport_routes_polys.gpkg
 
 
 ## Run validate-deploy

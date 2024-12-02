@@ -23,6 +23,9 @@ do
     cycle_infra)
         sources="${sources} cycle_infra ylre_katualueet"
         ;;
+    special_transport_routes)
+        sources="${sources} special_transport_routes ylre_katualueet"
+        ;;
     *)
         sources="${sources} $tormays_source"
         ;;
@@ -58,6 +61,9 @@ else
             sources="${sources} ylre_katualueet $tormays_source"
             ;;
         tram_lines)
+            sources="${sources} ylre_katualueet $tormays_source"
+            ;;
+        special_transport_routes)
             sources="${sources} ylre_katualueet $tormays_source"
             ;;
         *)

@@ -69,7 +69,7 @@ hki|ylre_katualueet|ylre_katuosat|maka_autoliikennemaarat|osm|helsinki_osm_lines
     ogr2ogr -progress -f GPKG "$local_file" ${extra_args:+$extra_args} ${extra_quoted_args:+"$extra_quoted_args"} "$addr" $layer
     ;;
 # plain WFS fetch with authentication
-liikennevaylat|cycle_infra)
+liikennevaylat|cycle_infra|special_transport_routes)
     addr_with_authentication=$(echo $addr | sed -E 's/\$\$([A-Z]+)\$\$/${\1}/g' | envsubst)
     ogr2ogr -progress -f GPKG "$local_file" ${extra_args:+$extra_args} ${extra_quoted_args:+"$extra_quoted_args"} "$addr_with_authentication" "$layer"
     ;;

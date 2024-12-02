@@ -132,6 +132,21 @@ central_business_area:
   validate_limit_max: 1.15
   store_orinal_data: False
 #  store_orinal_data: "Piirijako_pienalue"
+special_transport_routes:
+  addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
+  layer: "helsinki:Erikoiskuljetusreittien_tavoiteverkko"
+  local_file: "special_transport_routes.gpkg"
+  target_file: "special_transport_routes.gpkg"
+  target_buffer_file: "tormays_special_transport_routes_polys.gpkg"
+  tormays_table_org: "tormays_special_transport_routes_polys"
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
+  store_orinal_data: False
+  buffer_class_values:
+    maantie: 4
+    katu: 20
+    yksityistie: 5
+  store_orinal_data: "Erikoiskuljetusreittien_tavoiteverkko"
 
 common:
   download_path: "/downloads"

@@ -16,6 +16,7 @@ from modules.tram_lines import TramLines
 from modules.cycling_infra import CycleInfra
 from modules.liikennevaylat import Liikennevaylat
 from modules.central_business_area import CentralBusinessAreas
+from modules.special_transport_routes import SpecialTransportRoutes
 
 DEFAULT_DEPLOYMENT_PROFILE = "local_development"
 
@@ -49,6 +50,8 @@ def instantiate_processor(item: str, cfg: Config) -> GisProcessor:
         return Liikennevaylat(cfg)
     elif item == "central_business_area":
         return CentralBusinessAreas(cfg)
+    elif item == "special_transport_routes":
+        return SpecialTransportRoutes(cfg)
     else:
         logger.error("Configuration not recognized: %s", item)
 
