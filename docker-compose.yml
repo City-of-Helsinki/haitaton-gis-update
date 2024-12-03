@@ -58,6 +58,7 @@ services:
       TORMAYS_DEPLOYMENT_PROFILE: ${TORMAYS_DEPLOYMENT_PROFILE}
       TZ: Europe/Helsinki
     volumes:
+      - ./data:/local_data
       - haitaton_gis_prepare:/haitaton-gis
       - ./haitaton-downloads:/downloads
       - ./haitaton-gis-output:/gis-output
