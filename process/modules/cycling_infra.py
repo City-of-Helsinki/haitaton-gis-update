@@ -83,11 +83,6 @@ class CycleInfra(GisProcessor):
         # Buffering classes
         self._buffer_class_yksisuuntaisuus_values = {
             "kaista": [
-                  "NoneNone",
-                  "BaanaNone",
-                  "Muu pyöräreittiNone",
-                  "Muu yhteysNone",
-                  "PääpyöräreittiNone",
             ],
             "yksisuuntainen": [
                   "NoneYksisuuntainen digitointisuuntaan",
@@ -107,12 +102,17 @@ class CycleInfra(GisProcessor):
                   "PääpyöräreittiYksisuuntainen digitointisuuntaa vastaan",
             ],
             "kaksisuuntainen": [
+                  "NoneNone",
+                  "Muu pyöräreittiNone",
+                  "Muu yhteysNone",
+                  "PääpyöräreittiNone",
                   "NoneKaksisuuntainen",
                   "Muu pyöräreittiKaksisuuntainen",
                   "Muu yhteysKaksisuuntainen",
                   "PääpyöräreittiKaksisuuntainen",
             ],
             "kaksisuuntainen_baana": [
+                  "BaanaNone",
                   "BaanaKaksisuuntainen",
             ],
         }
