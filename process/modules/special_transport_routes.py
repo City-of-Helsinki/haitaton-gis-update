@@ -67,6 +67,8 @@ class SpecialTransportRoutes(GisProcessor):
             "paivitetty_tietopalveluun",
             "ylre_class",
             "kadun_nimi",
+            "gml_id",
+            "id",
         ]
 
         self._lines = gpd.read_file(file_name)
@@ -118,6 +120,7 @@ class SpecialTransportRoutes(GisProcessor):
     def _check_and_set_ylre_classes_id(self, lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         attrs = ["ylre_class", "kadun_nimi"]
         ylre_katualueet_dissolved = self._ylre_katualueet.dissolve(by=attrs)
+        ylre_katualueet_dissolved["geometry"] = ylre_katualueet_dissolved.buffer(15)
         joined_result = gpd.sjoin(lines, ylre_katualueet_dissolved, predicate='within')
 
         retval = lines.merge(joined_result[['gml_id','ylre_class','kadun_nimi']], how='left', left_on='gml_id', right_on='gml_id')
