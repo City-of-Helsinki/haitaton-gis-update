@@ -1,11 +1,8 @@
 import geopandas as gpd
 import pandas as pd
-import numpy as np
 from sqlalchemy import create_engine, text
-#from shapely.validation import explain_validity
 from os import path
 from shapely.validation import make_valid
-from shapely.geometry import MultiPolygon, Polygon, GeometryCollection
 
 from modules.config import Config
 from modules.gis_processing import GisProcessor
@@ -75,30 +72,9 @@ class SpecialTransportRoutes(GisProcessor):
         self._lines["vaylatyyp2"] = self._lines["vaylatyyp2"].str.replace("\n", "")
 
         # Drop one invalid data line
-        self._lines = self._lines.drop(self._lines[(self._lines["id"] == 1500) | ((self._lines["nimi_1"] == "Metsälä-Etelä-Oulunkylä") & (self._lines["vaylatyyp2"] == "Kevyen liikenteen väylä"))].index)
+        self._lines = self._lines.drop(self._lines[(self._lines["id"] == 1500) & ((self._lines["nimi_1"] == "Metsälä-Etelä-Oulunkylä") & (self._lines["vaylatyyp2"] == "Kevyen liikenteen väylä"))].index)
 
         self._orig = self._lines
-
-    def _keep_rows_base_on_hierarchy_list(self, types, shapes: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-        retval = shapes.copy()
-        mask = retval["hierarkia"].isin(types)
-        retval = retval[mask]
-        return retval
-
-    def _drop_not_used_classes_base_on_main_and_sub_types(self, main_and_sub_types, shapes: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-        retval = shapes.copy()
-        for main_type, sub_types in main_and_sub_types.items():
-            for sub_type in sub_types:
-                retval.drop(
-                    retval[
-                        (retval["paatyyppi"] == main_type)
-                        & (retval["alatyyppi"] == sub_type)
-                    ].index,
-                    axis=0,
-                    inplace=True,
-                )
-
-        return retval
 
     def _drop_unnecessary_columns(self, columns_to_drop: list[str], shapes: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         retval = shapes.copy()
@@ -118,7 +94,7 @@ class SpecialTransportRoutes(GisProcessor):
         return retval
 
     def _check_and_set_ylre_classes_id(self, lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-        attrs = ["ylre_class", "kadun_nimi"]
+        attrs = ["ylre_class"]
         ylre_katualueet_dissolved = self._ylre_katualueet.dissolve(by=attrs)
         ylre_katualueet_dissolved["geometry"] = ylre_katualueet_dissolved.buffer(15)
         joined_result = gpd.sjoin(lines, ylre_katualueet_dissolved, predicate='within')
@@ -127,7 +103,7 @@ class SpecialTransportRoutes(GisProcessor):
 
         return retval
 
-    def _makeValid(self, data, geom_column):
+    def _make_valid(self, data, geom_column):
         data[geom_column] = data.apply(lambda row: make_valid(row[geom_column]) if not row[geom_column].is_valid else row[geom_column], axis=1)
         return(data)
 
@@ -166,7 +142,7 @@ class SpecialTransportRoutes(GisProcessor):
         target_infra_polys = target_infra_polys.explode(ignore_index=True)
 
         # Validate geometry
-        target_infra_polys = self._makeValid(target_infra_polys, "geometry")
+        target_infra_polys = self._make_valid(target_infra_polys, "geometry")
         target_infra_polys = makeValid(target_infra_polys)
 
         target_infra_polys = target_infra_polys[~target_infra_polys.is_empty]
@@ -190,7 +166,7 @@ class SpecialTransportRoutes(GisProcessor):
 
     def save_to_file(self):
         """Save processing results to file."""
-        # Central transport routes as debug material
+        # Special transport routes as debug material
         target_infra_file_name = self._cfg.target_file(self._module)
         target_lines = self._process_result_lines.reset_index(drop=True)
         target_lines.to_file(target_infra_file_name, driver="GPKG")
