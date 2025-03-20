@@ -27,7 +27,7 @@ class YlreKatualueet:
             elif purpose == "Kokoojakatu tai -tie":
                 retval = "Paikallinen kokoojakatu"
             elif purpose in ["Asuntokatu", "Hidaskatu", "Pihakatu", "Tontti"]:
-                retval = "Tonttikatu tai ajoyhteys"
+                retval = "Asuntokatu, huoltoväylä tai vähäliikenteinen katu"
 
             return retval
 
@@ -36,7 +36,7 @@ class YlreKatualueet:
         )
         df = df[~df["ylre_class"].isna()]
         df = df[~(df["geometry"].isna() | df["geometry"].is_empty)].loc[
-            :, ["ylre_class", "geometry"]
+            :, ["ylre_class", "kadun_nimi", "geometry"]
         ]
         df["fid"] = df.reset_index().index
         self._df = df.set_index("fid")

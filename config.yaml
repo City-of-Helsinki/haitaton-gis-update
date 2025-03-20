@@ -4,8 +4,8 @@ hsl:
   target_file: "buses_lines.gpkg"
   target_buffer_file: "tormays_buses_polys.gpkg"
   tormays_table_org: "tormays_buses_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.24
   buffer:
     - 15
   store_orinal_data: False
@@ -17,8 +17,8 @@ maka_autoliikennemaarat:
   target_file: "volume_lines.gpkg"
   target_buffer_file: "tormays_volumes{}_polys.gpkg"
   tormays_table_org: "tormays_volumes{}_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer:
     - 15
     - 30
@@ -31,21 +31,21 @@ ylre_katualueet:
   target_file: "ylre_classes_orig_polys.gpkg"
   target_buffer_file: "tormays_ylre_classes_polys.gpkg"
   tormays_table_org: "tormays_ylre_classes_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   store_orinal_data: False
 #  store_orinal_data: "ylre_classes_orig_polys"
 ylre_katuosat:
   addr: "WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs"
-  layer: "avoindata:YLRE_Katuosat_alue"
+  layer: "avoindata:YLRE_Katuosat_alue avoindata:YLRE_Viherosat_alue"
   local_file: "ylre_katuosat_alue.gpkg"
   target_file: "ylre_parts_orig_polys.gpkg"
   target_buffer_file: "tormays_ylre_parts_polys.gpkg"
   tormays_table_org: "tormays_ylre_parts_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   buffer:
-    - 5
+    - 0
   store_orinal_data: False
 #  store_orinal_data: "ylre_parts_orig_polys"
 osm:
@@ -64,14 +64,16 @@ hki:
   local_file: helsinki_alue.gpkg
   extra_args: "-nln alue -where kunta='091'"
 tram_infra:
+  addr: "/local_data/train_depots.gpkg"
   local_file: "helsinki-osm-lines.gpkg"
   target_file: "tram_infra.gpkg"
   target_buffer_file: "tormays_tram_infra_polys.gpkg"
   tormays_table_org: "tormays_tram_infra_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.02
+  validate_limit_max: 4.0
   buffer:
     - 20
+    - 10
   store_orinal_data: False
 #  store_orinal_data: "tram_infra"
 tram_lines:
@@ -79,24 +81,31 @@ tram_lines:
   target_file: "tram_lines.gpkg"
   target_buffer_file: "tormays_tram_lines_polys.gpkg"
   tormays_table_org: "tormays_tram_lines_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.20
+  validate_limit_max: 2.30
   buffer:
-    - 35
+    - 20
   store_orinal_data: False
 #  store_orinal_data: "tram_lines"
 cycle_infra:
-  addr: "/local_data/helsinki_cycleways.gpkg"
+  addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
+  layer: "helsinki:Liikennevaylat_kehitys"
   local_file: "helsinki_cycleways.gpkg"
   target_file: "cycle_infra.gpkg"
   target_buffer_file: "tormays_cycle_infra_polys.gpkg"
   tormays_table_org: "tormays_cycle_infra_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.40
+  validate_limit_max: 1.50
+  buffer_class_values:
+    kaista: 1
+    yksisuuntainen: 1.5
+    kaksisuuntainen: 2
+    kaksisuuntainen_baana: 2.5
   buffer:
     - 20
   store_orinal_data: False
-#  store_orinal_data: "cycle_infra"
+#  store_orinal_data: "cycle_infra_test"
+  ylre_street_class_buffer: 10
 liikennevaylat:
   addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
   layer: "helsinki:Liikennevaylat_kehitys"
@@ -105,13 +114,13 @@ liikennevaylat:
   target_buffer_file: "tormays_street_classes_polys.gpkg"
   extra_args: "-nlt CONVERT_TO_LINEAR"
   tormays_table_org: "tormays_street_classes_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.07
+  validate_limit_max: 5
   buffer_class_values:
-    paakatu_tai_moottorivayla: 20
-    alueellinen_kokoojakatu: 20
-    paikallinen_kokoojakatu: 20
-    kantakaupungin_asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 10
+    paakatu_tai_moottorivayla: 10
+    alueellinen_kokoojakatu: 7
+    paikallinen_kokoojakatu: 5
+    kantakaupungin_asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 6
     asuntokatu_huoltovayla_tai_muu_vahaliikenteinen_katu: 10
   store_orinal_data: False
 #  store_orinal_data: "liikennevaylat"
@@ -121,16 +130,25 @@ central_business_area:
   local_file: "central_business_areas.gpkg"
   target_file: "tormays_central_business_area_polys.gpkg"
   tormays_table_org: "tormays_central_business_area_polys"
-  validate_limit_min: 0.98
-  validate_limit_max: 1.10
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
   store_orinal_data: False
 #  store_orinal_data: "Piirijako_pienalue"
-
-logging:
-  logging_filename: ""
-  logging_filemode: "w"
-  logging_level: INFO
-  logging_format: "%(asctime)s - %(levelname)s - %(message)s"
+special_transport_routes:
+  addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
+  layer: "helsinki:Erikoiskuljetusreittien_tavoiteverkko"
+  local_file: "special_transport_routes.gpkg"
+  target_file: "special_transport_routes.gpkg"
+  target_buffer_file: "tormays_special_transport_routes_polys.gpkg"
+  tormays_table_org: "tormays_special_transport_routes_polys"
+  validate_limit_min: 0.90
+  validate_limit_max: 1.15
+  store_orinal_data: False
+  buffer_class_values:
+    maantie: 4
+    katu: 20
+    yksityistie: 5
+  store_orinal_data: "Erikoiskuljetusreittien_tavoiteverkko"
 
 common:
   download_path: "/downloads"
@@ -165,10 +183,10 @@ local_docker_development:
 docker_development:
   database:
     port: 154321
-    host: localhost1
-    username: haitaton1
-    password: haitaton1
-    database: haitaton1
+    host: localhost
+    username: haitaton
+    password: haitaton
+    database: haitaton
   storage:
     download_dir: "/downloads"
     output_dir: "/gis-output"

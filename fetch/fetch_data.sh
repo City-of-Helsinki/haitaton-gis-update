@@ -62,18 +62,14 @@ extra_quoted_args=$(parse_config $(cfg_extra_quoted_args $data_object))
 
 case $data_object in
 hsl)
-    wget -O "$local_file" "$addr"
-    ;;
-# plain cp from local file system
-cycle_infra)
-    cp "$addr" "$local_file"
+    wget --progress=dot:mega -O "$local_file" "$addr"
     ;;
 # plain WFS fetch
 hki|ylre_katualueet|ylre_katuosat|maka_autoliikennemaarat|osm|helsinki_osm_lines|central_business_area)
-    ogr2ogr -progress -f GPKG "$local_file" ${extra_args:+$extra_args} ${extra_quoted_args:+"$extra_quoted_args"} "$addr" "$layer"
+    ogr2ogr -progress -f GPKG "$local_file" ${extra_args:+$extra_args} ${extra_quoted_args:+"$extra_quoted_args"} "$addr" $layer
     ;;
 # plain WFS fetch with authentication
-liikennevaylat)
+liikennevaylat|cycle_infra|special_transport_routes)
     addr_with_authentication=$(echo $addr | sed -E 's/\$\$([A-Z]+)\$\$/${\1}/g' | envsubst)
     ogr2ogr -progress -f GPKG "$local_file" ${extra_args:+$extra_args} ${extra_quoted_args:+"$extra_quoted_args"} "$addr_with_authentication" "$layer"
     ;;

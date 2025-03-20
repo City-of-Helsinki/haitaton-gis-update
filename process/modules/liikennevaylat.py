@@ -1,12 +1,14 @@
 import geopandas as gpd
 import pandas as pd
 import shapely
-from datetime import datetime 
+import numpy as np
+from datetime import datetime
 from sqlalchemy import create_engine, text
 from os import path
 
 from modules.config import Config
 from modules.gis_processing import GisProcessor
+from modules.common import *
 
 
 class Liikennevaylat(GisProcessor):
@@ -29,6 +31,15 @@ class Liikennevaylat(GisProcessor):
         ylre_katuosat_filename = cfg.target_buffer_file("ylre_katuosat")
         self._ylre_katuosat = gpd.read_file(ylre_katuosat_filename)
         self._ylre_katuosat_sindex = self._ylre_katuosat.sindex
+
+        # check that ylre_katualueet file is available
+        if not path.exists(self._cfg.target_buffer_file("ylre_katualueet")):
+            raise FileNotFoundError("ylre katualueet polygon not found")
+
+        # Loading ylre_katualueet dataset
+        ylre_katualueet_filename = cfg.target_buffer_file("ylre_katualueet")
+        self._ylre_katualueet = gpd.read_file(ylre_katualueet_filename)
+        self._ylre_katualueet_sindex = self._ylre_katualueet.sindex
 
         # check central business area file is available
         if not path.exists(self._cfg.target_file("central_business_area")):
@@ -71,12 +82,14 @@ class Liikennevaylat(GisProcessor):
             "yksisuuntaisuus",
             "IsInsideArea",
             "IntersectsArea",
-            "index_right",
+            "ylre_street_area",
+            "ylre_class",
+            "area",
         ]
 
         # Following main and sub type combinations can be removed from data
         self._droppable_types = {
-            "Kevyt liikenne": [
+            "Jalankulku ja pyöräliikenne": [
                 "Suojatie",
                 "Puistotie- tai väylä",
                 "Jalkakäytävä",
@@ -236,9 +249,19 @@ class Liikennevaylat(GisProcessor):
 
     def _check_and_set_ylre_classes_id(self, lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         ylre_katuosat_dissolved = self._ylre_katuosat.dissolve("ylre_street_area")
-        joined_result = gpd.sjoin(lines, ylre_katuosat_dissolved, predicate='within')
+        ylre_katuosat_dissolved["geometry"] = ylre_katuosat_dissolved.buffer(15)
+        joined_result = gpd.sjoin(lines, ylre_katuosat_dissolved, predicate="within")
 
-        retval = lines.merge(joined_result[['uuid', 'index_right']], how='left', left_on='uuid', right_on='uuid')
+        retval = lines.merge(joined_result[["uuid", "ylre_street_area"]], how="left", left_on="uuid", right_on="uuid")
+
+        return retval
+
+    def _check_and_set_ylre_katualueet_id(self, areas: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        ylre_katualueet_dissolved = self._ylre_katualueet.dissolve("ylre_class")
+        ylre_katualueet_dissolved["geometry"] = ylre_katualueet_dissolved.buffer(10)
+        joined_result = gpd.sjoin(areas, ylre_katualueet_dissolved, predicate="within")
+
+        retval = areas.merge(joined_result[["uuid","ylre_class"]], how="left", left_on="uuid", right_on="uuid")
 
         return retval
 
@@ -253,14 +276,25 @@ class Liikennevaylat(GisProcessor):
 
         return retval
 
-    def _clip_by_ylre_classes_areas(self, geometry: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    def _clip_by_ylre_classes_areas(self, geometryToClip: gpd.GeoDataFrame, mask) -> gpd.GeoDataFrame:
+        # This internal function is not used and it's functionality is moved to common function (clipAreasByAreas).
+        # Still kept here as how the original implementation was done.
 
-        ylre_katuosat_dissolved = self._ylre_katuosat.dissolve("ylre_street_area")
-        ylre_areas = geometry[geometry["index_right"].notnull()]
+        geometry = geometryToClip[~geometryToClip.is_empty]
+        dissolve_attrs = ["ylre_street_area"]
+        ylre_katuosat_dissolved = mask.dissolve(by=dissolve_attrs, as_index=False)
+        ylre_katuosat_dissolved = ylre_katuosat_dissolved.explode(ignore_index=True)
+        ylre_areas = geometry[geometry["ylre_street_area"].notnull()]
+        dissolve_attrs = ["street_class", "silta_alikulku", "yksisuuntaisuus"]
+        for attr in dissolve_attrs:
+            ylre_areas[attr] = ylre_areas[attr].fillna("")
+        #ylre_areas = ylre_areas.dissolve(by=dissolve_attrs, as_index=False)
+        ylre_areas = ylre_areas.explode(ignore_index=True)
         clipped_result=gpd.clip(ylre_areas, ylre_katuosat_dissolved)
+        clipped_result = clipped_result.explode(ignore_index=True)
 
         # Getting objects which were not clipped
-        merged = ylre_areas.merge(clipped_result, how="outer", indicator=True, on="id", suffixes=("", "_right"))
+        merged = ylre_areas.merge(clipped_result, how="outer", indicator=True, on="gml_id", suffixes=("", "_right"))
         not_clipped = merged[merged["_merge"] == "left_only"].copy()
         not_clipped.drop("_merge", axis=1, inplace=True)
         common_columns = set(ylre_areas.columns).intersection(not_clipped.columns)
@@ -269,10 +303,14 @@ class Liikennevaylat(GisProcessor):
         not_clipped = not_clipped[common_columns_list].copy()
 
         # Adding clipped results to objects which were not interacting with YLRE areas at all
-        retval = gpd.GeoDataFrame(pd.concat([geometry.loc[~geometry["index_right"].notnull()], clipped_result], ignore_index=True))
+        retval = gpd.GeoDataFrame(pd.concat([geometry.loc[~geometry["ylre_street_area"].notnull()], clipped_result], ignore_index=True))
 
         # Adding not clipped objects
         retval = gpd.GeoDataFrame(pd.concat([retval, not_clipped], ignore_index=True))
+        for attr in dissolve_attrs:
+            retval[attr] = retval[attr].fillna("")
+        retval = retval.dissolve(by=dissolve_attrs, as_index=False)
+        retval = retval.explode(ignore_index=True)
 
         return retval
 
@@ -296,20 +334,36 @@ class Liikennevaylat(GisProcessor):
 
         # Mark objects which are within YLRE katuosa areas
         self._process_result_lines = self._check_and_set_ylre_classes_id(self._process_result_lines)
+        self._process_result_lines = self._check_and_set_ylre_katualueet_id(self._process_result_lines)
 
         # Buffer lines using buffer configuration
         target_infra_polys = self._process_result_lines.copy()
         target_infra_polys = self._buffering(target_infra_polys)
 
         # Clip by using YLRE katuosa areas
-        target_infra_polys = self._clip_by_ylre_classes_areas(target_infra_polys)
+        geometryToClipAttrsDissolve = ["street_class", "silta_alikulku", "yksisuuntaisuus", "ylre_class"]
+        maskAttrsDissolve = ["ylre_street_area", "kadun_nimi"]
+        target_infra_polys = clipAreasByAreas(target_infra_polys, self._ylre_katuosat, geometryToClipAttrsDissolve, maskAttrsDissolve, "gml_id", "ylre_street_area")
+
+        # Fill empty values with NaN because of geometry to clip check attribute value (geometryToClipCheckAttr) which is in this case "ylre_class"
+        target_infra_polys = target_infra_polys.replace("", np.nan)
+        target_infra_polys = target_infra_polys.explode(ignore_index=True)
+        self._ylre_katualueet = self._ylre_katualueet.explode(ignore_index=True)
+        maskAttrsDissolve = ["ylre_class"]
+        target_infra_polys = clipAreasByAreas(target_infra_polys, self._ylre_katualueet, geometryToClipAttrsDissolve, maskAttrsDissolve, "id", "ylre_class", True)
+        target_infra_polys = target_infra_polys[target_infra_polys.geometry.type != 'Point']
 
         # Dissolve areas using attributes street_class and silta_alikulku as grouping factor
         dissolve_attrs = ["street_class", "silta_alikulku"]
+        for attr in dissolve_attrs:
+            target_infra_polys[attr] = target_infra_polys[attr].fillna("")
         target_infra_polys = target_infra_polys.dissolve(by=dissolve_attrs, as_index=False)
 
         # Explode multipolygon to polygons
         target_infra_polys = target_infra_polys.explode(ignore_index=True)
+
+        target_infra_polys["area"] = target_infra_polys["geometry"].area
+        target_infra_polys = target_infra_polys[target_infra_polys["area"] > 7] # Select only objects which area size > 7
 
         # Drop unnecessary columns
         target_infra_polys = self._drop_unnecessary_columns(

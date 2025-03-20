@@ -144,6 +144,7 @@ Where `<source>` is currently one of:
 - `cycle_infra` - Cycle infra (local file)
 - `central_business_area` - Helsinki city "kantakaupunki"
 - `liikennevaylat` - Helsinki city street classes
+- `special_transport_routes` - Helsinki city special transport routes
 
 Data files are downloaded to `./haitaton-downloads` -directory.
 
@@ -177,14 +178,15 @@ Currently supported processing targets are:
 
 ### `hsl`
 
-Prerequisite: downloaded `hsl` and `hki` materials.
+Prerequisite: downloaded ´ylre_katuosat´, `hsl` and `hki` materials.
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch hsl hki
+docker-compose run --rm gis-fetch hsl hki ylre_katuosat
+docker-compose run --rm gis-process ylre_katuosat
 docker-compose run --rm gis-process hsl
 docker-compose stop gis-db
 ```
@@ -260,14 +262,15 @@ Files (names configured in `config.yaml`)
 
 ### `tram_infra`
 
-Prerequisite: fetched `osm`, `hki` and `helsinki_osm_lines` -materials.
+Prerequisite: fetched `ylre_katualueet`, `osm`, `hki` and `helsinki_osm_lines` -materials.
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch hki osm helsinki_osm_lines
+docker-compose run --rm gis-fetch hki osm helsinki_osm_lines ylre_katualueet
+docker-compose run --rm gis-process ylre_katualueet
 docker-compose run --rm gis-process tram_infra
 docker-compose stop gis-db
 ```
@@ -282,14 +285,15 @@ Output files (names configured in `config.yaml`)
 
 ### `tram_lines`
 
-Prerequisite: fetched `hsl` and `hki` -materials.
+Prerequisite: fetched `ylre_katualueet`, `hsl` and `hki` -materials.
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch hki hsl
+docker-compose run --rm gis-fetch hki hsl ylre_katualueet
+docker-compose run --rm gis-process ylre_katualueet
 docker-compose run --rm gis-process tram_lines
 docker-compose stop gis-db
 ```
@@ -304,14 +308,15 @@ Output files (names configured in `config.yaml`)
 
 ### `cycle_infra`
 
-Prerequisite: copy source file to `data` -directory. See `data/README.md`
+Prerequisite: fetched `ylre_katualueet` and `cycle_infra` -materials.
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch cycle_infra
+docker-compose run --rm gis-fetch ylre_katualueet cycle_infra
+docker-compose run --rm gis-process ylre_katualueet
 docker-compose run --rm gis-process cycle_infra
 docker-compose stop gis-db
 ```
@@ -347,20 +352,22 @@ Output files (names configured in `config.yaml`)
 
 ### `liikennevaylat`
 
-Prerequisite: 
+Prerequisite:
 - `central_business_area` material fetched
 - `ylre_katuosat` material fetched
+- `ylre_katualueet` material fetched
 - `liikennevaylat` material fetched
 - `central_business_area` material processed
 - `ylre_katuosat` material processed
+- `ylre_katualueet` material processed
 
 Docker example run (ensure that image build and file copying is
 already performed as instructed above):
 
 ```sh
 docker-compose up -d gis-db
-docker-compose run --rm gis-fetch liikennevaylat central_business_area ylre_katuosat
-docker-compose run --rm gis-process central_business_area ylre_katuosat
+docker-compose run --rm gis-fetch liikennevaylat central_business_area ylre_katuosat ylre_katualueet
+docker-compose run --rm gis-process central_business_area ylre_katuosat ylre_katualueet
 docker-compose run --rm gis-process liikennevaylat
 docker-compose stop gis-db
 ```
@@ -373,6 +380,31 @@ Output files (names configured in `config.yaml`)
 
 - street_classes.gpkg
 - tormays_street_classes_polys.gpkg
+
+### `special_transport_routes`
+
+Prerequisite:
+- `ylre_katualueet` material fetched
+- `ylre_katualueet` material processed
+
+Docker example run (ensure that image build and file copying is
+already performed as instructed above):
+
+```sh
+docker-compose up -d gis-db
+docker-compose run --rm gis-fetch special_transport_routes ylre_katualueet
+docker-compose run --rm gis-process ylre_katualueet
+docker-compose run --rm gis-process special_transport_routes
+docker-compose stop gis-db
+```
+
+Processed GIS material is available in:
+haitaton-gis-output
+
+Output files (names configured in `config.yaml`)
+
+- special_transport_routes.gpkg
+- tormays_special_transport_routes_polys.gpkg
 
 
 ## Run validate-deploy
@@ -389,9 +421,9 @@ Where `<source>` is currently one of:
 - `ylre_katualueet` - Helsinki YLRE street areas, polygons.
 - `ylre_katuosat` - Helsinki YLRE parts, polygons.
 - `maka_autoliikennemaarat` - Traffic volumes (car traffic)
-- `tram_infra` - Tram infra  
+- `tram_infra` - Tram infra
 - `tram_lines` - Tram railways
-- `cycle_infra` - Cycle infra (local file)
+- `cycle_infra` - Helsinki city cycle infra
 - `central_business_area` - Helsinki city "kantakaupunki"
 - `liikennevaylat` - Helsinki city street classes
 
@@ -416,7 +448,7 @@ All sources are having own configuration variables in config.yaml. These are inc
   validate_limit_max: 1.10
 ```
 
-where 
+where
 - `tormays_table_org` = "tormays" table name which is used in Haitaton (variable is used in gis-process)
 - `tormays_table_temp` = temporary table name where gis-process will save processed data (variable is used in gis-process)
 - `validate_limit_min` = percentage lower limit on "tormays" data eg. 0.98: (line amount of "tormays_table_org")*0.98 (variable is used in gis-validate-deploy)
@@ -426,10 +458,10 @@ where
 
 Total automation process includes this processes:
 - gis-fetch (Remark: each source is having it's own prerequisites)
-- gis-process (Remark: tormays_table_org value should be equivalent to Haitaton model) 
+- gis-process (Remark: tormays_table_org value should be equivalent to Haitaton model)
 - gis-validate-deploy (Remark: validate_limit_min and validate_limit_max values)
 
-Automation of  the `<source>`: 
+Automation of  the `<source>`:
 
 ```sh
 docker-compose run --rm gis-fetch <source>

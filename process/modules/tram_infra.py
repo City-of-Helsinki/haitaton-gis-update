@@ -1,9 +1,12 @@
+import logging
 import geopandas as gpd
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 
 from modules.config import Config
 from modules.gis_processing import GisProcessor
+
+logger = logging.getLogger(__name__)
 
 # SettingWithCopyWarning warning disabling
 pd.options.mode.chained_assignment = None
@@ -36,10 +39,69 @@ class TramInfra(GisProcessor):
         self._process_result_polygons = None
         self._debug_result_lines = None
         self._orig = None
+        # Loading ylre_katualueet dataset
+        ylre_katualueet_filename = cfg.target_buffer_file("ylre_katualueet")
+        self._ylre_katualueet = gpd.read_file(ylre_katualueet_filename)
+        self._ylre_katualueet_sindex = self._ylre_katualueet.sindex
+
+        # Loading train_depots dataset
+        self._train_depots = gpd.read_file("/local_data/train_depots.gpkg")
+        self._train_depots_sindex = self._train_depots.sindex
+
         self._module = "tram_infra"
         self._store_original_data = cfg.store_orinal_data(self._module)
         file_name = cfg.local_file(self._module)
-        self._lines = gpd.read_file(file_name)
+        self._lines = gpd.read_file(filename=file_name)
+
+    def _clipAreasByAreas(self, geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, geometryToClipAttrsDissolve, maskAttrsDissolve, mergeIdField, geometryToClipCheckAttr=None) -> gpd.GeoDataFrame:
+        geometry = geometryToClip[~geometryToClip.is_empty]
+        for attr in maskAttrsDissolve:
+            mask[attr] = mask[attr].fillna("")
+
+        if maskAttrsDissolve:
+            mask_dissolved = mask.dissolve(by=maskAttrsDissolve, as_index=False)
+        else:
+            mask_dissolved = mask
+
+        mask_dissolved = mask_dissolved.explode(ignore_index=True)
+
+        if geometryToClipCheckAttr is not None:
+            geometryToClipOnlyCheckObjects = geometry[geometry[geometryToClipCheckAttr].notnull()]
+            geometryToClipNotCheckObjects = geometry.loc[~geometry[geometryToClipCheckAttr].notnull()]
+        else:
+            geometryToClipOnlyCheckObjects = geometry
+
+        geometryToClipOnlyCheckObjects = geometryToClipOnlyCheckObjects.explode(ignore_index=True)
+        # Actual clipping:
+        clipped_result=gpd.clip(geometryToClipOnlyCheckObjects, mask_dissolved)
+        clipped_result = clipped_result.explode(ignore_index=True)
+        clipped_result.geometry = clipped_result.apply(lambda row: make_valid(row.geometry) if not row.geometry.is_valid else row.geometry, axis=1)
+        geometryToClipOnlyCheckObjects.geometry = geometryToClipOnlyCheckObjects.apply(lambda row: make_valid(row.geometry) if not row.geometry.is_valid else row.geometry, axis=1)
+
+        # Getting objects which were not clipped
+        merged = geometryToClipOnlyCheckObjects.merge(clipped_result, how="outer", indicator=True, on=mergeIdField, suffixes=("", "_right"))
+        not_clipped = merged[merged["_merge"] == "left_only"].copy()
+        not_clipped.drop("_merge", axis=1, inplace=True)
+        common_columns = set(geometryToClipOnlyCheckObjects.columns).intersection(not_clipped.columns)
+        common_columns.add(geometryToClipOnlyCheckObjects.geometry.name)
+        common_columns_list = list(common_columns)
+        not_clipped = not_clipped[common_columns_list].copy()
+
+        # Adding clipped results to objects which were not checked at all
+        if geometryToClipCheckAttr is not None:
+            retval = gpd.GeoDataFrame(pd.concat([geometryToClipNotCheckObjects, clipped_result], ignore_index=True))
+        else:
+            retval = clipped_result
+
+        # Adding not clipped objects
+        retval = gpd.GeoDataFrame(pd.concat([retval, not_clipped], ignore_index=True))
+        for attr in geometryToClipAttrsDissolve:
+            retval[attr] = retval[attr].fillna("")
+        if geometryToClipAttrsDissolve:
+            retval = retval.dissolve(by=geometryToClipAttrsDissolve, as_index=False)
+        retval = retval.explode(ignore_index=True)
+
+        return retval
 
     def process(self):
         lines = self._lines
@@ -65,17 +127,42 @@ class TramInfra(GisProcessor):
         #trams = tram_lines.join(df_new, how="inner").drop(["tag_dict"], axis=1)
         trams["infra"] = 1
         trams = trams.astype({"infra": "int32"})
-        self._process_result_lines = trams.loc[:, ["infra", "geometry"]]
+        self._process_result_lines = trams.loc[:, ["infra", "railway", "geometry"]]
         self._orig = trams
+
+        # Clip train infra by train_depots
+        self._train_depots["geometry"] = self._train_depots.buffer(1) # Make a little buffer to make sure that also objects on the border will be handled
+        self._process_result_lines = self._process_result_lines.overlay(self._train_depots, how='difference')
+
+        # Mark objects which are within YLRE katualueet areas
+        self._process_result_lines["id"] = self._process_result_lines.index + 1 # Adding temporary id field for clipping
+        self._process_result_lines = gpd.overlay(self._process_result_lines, self._ylre_katualueet, how='union', keep_geom_type=True).explode().reset_index(drop=True)
 
         # Buffering configuration
         buffers = self._cfg.buffer(self._module)
-        if len(buffers) != 1:
+        if len(buffers) != 2:
             raise ValueError("Unkown number of buffer values")
 
         # buffer lines
-        target_infra_polys = self._process_result_lines.copy()
-        target_infra_polys["geometry"] = target_infra_polys.buffer(buffers[0])
+        # Pick light rail objects
+        buffered_light_rail = self._process_result_lines.loc[self._process_result_lines["railway"].isin(["light_rail", ])].copy()
+        # Pick not light rail objects
+        buffered_not_light_rail = self._process_result_lines.loc[~self._process_result_lines["railway"].isin(["light_rail", ])].copy()
+        # Buffer not light rail objects using first buffer value
+        buffered_not_light_rail["geometry"] = buffered_not_light_rail.buffer(buffers[0])
+        # Buffer light rail objects using second buffer value
+        buffered_light_rail["geometry"] = buffered_light_rail.buffer(buffers[1])
+        # Concat datasets
+        target_infra_polys = pd.concat([buffered_not_light_rail, buffered_light_rail])
+
+        # Clip by using YLRE katualueet areas
+        geometryToClipAttrsDissolve = ["infra"]
+        maskAttrsDissolve = ["ylre_class"]
+        target_infra_polys = self._clipAreasByAreas(target_infra_polys, self._ylre_katualueet, geometryToClipAttrsDissolve, maskAttrsDissolve, "id", "ylre_class")
+        target_infra_polys.drop(columns=["id", "ylre_class", "kadun_nimi"], inplace=True) # Dropping temporary id field
+        for attr in geometryToClipAttrsDissolve:
+            target_infra_polys[attr] = target_infra_polys[attr].fillna("")
+        target_infra_polys = target_infra_polys.dissolve(by=geometryToClipAttrsDissolve, as_index=False)
 
         # Only intersecting objects to Helsinki area are important
         # read Helsinki geographical region and reproject
@@ -84,10 +171,12 @@ class TramInfra(GisProcessor):
                 filename=self._cfg.local_file("hki")
             ).to_crs(self._cfg.crs())
         except Exception as e:
-            print("Area polygon file not found!")
+            logger.error("Area polygon file not found!")
             raise e
 
         target_infra_polys = gpd.clip(target_infra_polys, helsinki_region_polygon)
+
+        target_infra_polys = target_infra_polys.explode(ignore_index=True)
 
         # save to instance
         self._process_result_polygons = target_infra_polys
@@ -117,7 +206,7 @@ class TramInfra(GisProcessor):
         schema = gpd.io.file.infer_schema(tram_lines)
         schema["properties"]["infra"] = "int32"
 
-        tram_lines.to_file(target_infra_file_name, schema=schema, driver="GPKG")
+        tram_lines.to_file(target_infra_file_name, schema=schema, engine="fiona", driver="GPKG")
 
         # tormays GIS material
         target_buffer_file_name = self._cfg.target_buffer_file(self._module)
@@ -129,4 +218,4 @@ class TramInfra(GisProcessor):
         schema = gpd.io.file.infer_schema(tormays_polygons)
         schema["properties"]["infra"] = "int32"
 
-        tormays_polygons.to_file(target_buffer_file_name, schema=schema, driver="GPKG")
+        tormays_polygons.to_file(target_buffer_file_name, schema=schema, engine="fiona", driver="GPKG")

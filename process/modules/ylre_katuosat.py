@@ -1,4 +1,6 @@
 import geopandas as gpd
+import pandas as pd
+import fiona
 from sqlalchemy import create_engine
 
 
@@ -14,8 +16,14 @@ class YlreKatuosat:
         self._store_original_data = cfg.store_orinal_data(self._module)
 
         filename = cfg.local_file(self._module)
-        layer = cfg.layer(self._module)
-        df = gpd.read_file(filename, layer=layer)
+        #layer = cfg.layer(self._module)
+        layers = {}
+        layerlist = fiona.listlayers(filename)
+        for layer in layerlist:
+            layers[layer] = gpd.read_file(filename, layer=layer)
+
+        df = gpd.GeoDataFrame(pd.concat(layers, ignore_index=True))
+
         self._orig = df
         df["ylre_types_concat"] = df["paatyyppi"] + " - " + df["alatyyppi"]
         selected_types = [
@@ -27,7 +35,7 @@ class YlreKatuosat:
             "Silta - Ajorata, muu (Silta)",
             "Silta - Koroke (Silta)",
         ]
-        df = df[df["ylre_types_concat"].isin(selected_types)].loc[:, ["geometry"]]
+        df = df[df["ylre_types_concat"].isin(selected_types)].loc[:, ["geometry", "kadun_nimi", "puiston_nimi", "katualueen_kayttotarkoitus"]]
         df["ylre_street_area"] = 1
         df["fid"] = df.reset_index().index
         self._df = df.set_index("fid")
@@ -67,4 +75,4 @@ class YlreKatuosat:
         schema = gpd.io.file.infer_schema(polygons)
         schema["properties"]["ylre_street_area"] = "int32"
 
-        polygons.to_file(file_name, schema=schema, driver="GPKG")
+        polygons.to_file(file_name, schema=schema, engine="fiona", driver="GPKG")

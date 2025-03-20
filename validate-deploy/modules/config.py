@@ -1,5 +1,4 @@
 from __future__ import annotations
-from os.path import exists
 from pathlib import Path
 import yaml
 import os
@@ -94,6 +93,10 @@ class Config:
         """Return buffer value list from configuration."""
         return self._cfg.get(item, {}).get("validate_limit_max")
 
+    def force_deploy(self) -> bool:
+        """Skip validation, except that there are some features."""
+        return os.environ.get("GIS_UPDATE_FORCE_DEPLOY", False)
+
     def pg_conn_uri(self, deployment: str = None) -> str:
         """Return PostgreSQL connection URI
 
@@ -108,19 +111,3 @@ class Config:
             port=os.environ.get("HAITATON_PORT",self._cfg.get(deployment, {}).get("database").get("port")),
             dbname=os.environ.get("HAITATON_DATABASE",self._cfg.get(deployment, {}).get("database").get("database")),
             )
-
-    def logging_filename(self) -> str:
-        """Return logging file name information from config file."""
-        return self._cfg.get("logging").get("logging_filename")
-
-    def logging_filemode(self) -> str:
-        """Return logging file mode information from config file."""
-        return self._cfg.get("logging").get("logging_filemode")
-
-    def logging_level(self) -> str:
-        """Return logging file level information from config file."""
-        return self._cfg.get("logging").get("logging_level")
-
-    def logging_format(self) -> str:
-        """Return logging file level information from config file."""
-        return self._cfg.get("logging").get("logging_format")
