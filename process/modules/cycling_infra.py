@@ -55,7 +55,6 @@ class CycleInfra(GisProcessor):
                 "Paikallinen kokoojakatu",
                 "Päätie",
                 "Tonttikatu",
-                #"Yhdistetty jalkakäytävä ja pyörätie",
             ],
             "Muu väylä": [
                 "Väylälinkki",
@@ -63,6 +62,7 @@ class CycleInfra(GisProcessor):
                 "Jalkakäytävä",
                 "Kulkuväylä aukiolla",
                 "Huoltotie",
+                "Alueellinen kokoojakatu",
             ],
             "Jalankulku ja pyöräliikenne": [
                 "Jalkakäytävä",
@@ -70,7 +70,6 @@ class CycleInfra(GisProcessor):
                 "Ulkoilureitti",
                 "Kulkuväylä aukiolla",
                 "Suojatie",
-#                "Puistotie- tai väylä",
             ],
         }
 
@@ -100,6 +99,9 @@ class CycleInfra(GisProcessor):
                   "PääpyöräreittiYksisuuntainen digitointisuuntaan",
                   "PääpyöräreittiYksisuuntainen (ei tietoa digitointisuunnasta)",
                   "PääpyöräreittiYksisuuntainen digitointisuuntaa vastaan",
+                  "Yksisuuntainen digitointisuuntaan",
+                  "Yksisuuntainen (ei tietoa digitointisuunnasta)",
+                  "Yksisuuntainen digitointisuuntaa vastaan",
             ],
             "kaksisuuntainen": [
                   "NoneNone",
@@ -110,10 +112,15 @@ class CycleInfra(GisProcessor):
                   "Muu pyöräreittiKaksisuuntainen",
                   "Muu yhteysKaksisuuntainen",
                   "PääpyöräreittiKaksisuuntainen",
+                  "Muu pyöräreitti",
+                  "Muu yhteys",
+                  "Pääpyöräreitti",
+                  "Kaksisuuntainen",
             ],
             "kaksisuuntainen_baana": [
                   "BaanaNone",
                   "BaanaKaksisuuntainen",
+                  "Baana",
             ],
         }
 
