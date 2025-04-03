@@ -38,6 +38,7 @@ ylre_katualueet:
 ylre_katuosat:
   addr: "WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs"
   layer: "avoindata:YLRE_Katuosat_alue avoindata:YLRE_Viherosat_alue"
+  extra_args: "-skipfailures"
   local_file: "ylre_katuosat_alue.gpkg"
   target_file: "ylre_parts_orig_polys.gpkg"
   target_buffer_file: "tormays_ylre_parts_polys.gpkg"
@@ -149,6 +150,20 @@ special_transport_routes:
     katu: 20
     yksityistie: 5
   store_orinal_data: "Erikoiskuljetusreittien_tavoiteverkko"
+critical_areas:
+  addr: "/local_data/tormays_critical_area_polys.gpkg"
+  local_file: "tormays_critical_area_polys.gpkg"
+  target_file: "critical_areas.gpkg"
+  target_buffer_file: "tormays_critical_area_polys.gpkg"
+  tormays_table_org: "tormays_critical_area_polys"
+  validate_limit_min: 0.02
+  validate_limit_max: 1.15
+  store_orinal_data: False
+  buffer_class_values:
+    maantie: 4
+    katu: 20
+    yksityistie: 5
+  store_orinal_data: "kriittiset_alueet"
 
 common:
   download_path: "/downloads"
