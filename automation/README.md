@@ -48,5 +48,6 @@ Where `<source>` is currently one of:
 - `central_business_area` - Helsinki city "kantakaupunki"
 - `liikennevaylat` - Helsinki city street classes
 - `special_transport_routes` - Helsinki city special transport routes
+- `critical_areas` - Critical area from upper left corner of Rautatientori (static)
 
 This docker image run will fetch `<source>` data, process it and after that `<source>` data will be validated and deployed to the database using given environment variables.
