@@ -93,7 +93,7 @@ class Config:
         """Return buffer value list from configuration."""
         return self._cfg.get(item, {}).get("validate_limit_max")
 
-    def force_deploy(self) -> bool:
+    def force_deploy(self) -> str:
         """Skip validation, except that there are some features."""
         return os.environ.get("GIS_UPDATE_FORCE_DEPLOY", False)
 
