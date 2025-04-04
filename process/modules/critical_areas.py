@@ -17,9 +17,7 @@ class CriticalAreas(GisProcessor):
 
     def __init__(self, cfg: Config):
         self._cfg = cfg
-        self._process_result_lines = None
         self._process_result_polygons = None
-        self._debug_result_lines = None
         self._module = "critical_areas"
 
         self._store_original_data = cfg.store_orinal_data(self._module)
