@@ -104,6 +104,7 @@ class Liikennevaylat(GisProcessor):
                 "Jalkakäytävän tasossa oleva pyörätie",
                 "Muu polku",
                 "Tasoeroteltu pyörätie",
+                "Pyörätie",
             ],
             "Muu väylä": [
                 "Väylälinkki",
@@ -128,45 +129,19 @@ class Liikennevaylat(GisProcessor):
 
         # Set street_classes base on main and sub type combinations (main,sub,street_class)
         self._street_class_name_base_on_main_and_sub_type = (
-            (
-                "Katu",
-                "Asuntokatu",
-                "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu",
-            ),
+            ("Katu", "Asuntokatu", "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu"),
             ("Katu", "Paikallinen kokoojakatu", "Paikallinen kokoojakatu"),
             ("Katu", "Alueellinen kokoojakatu", "Alueellinen kokoojakatu"),
+            ("Muu väylä", "Alueellinen kokoojakatu", "Alueellinen kokoojakatu"),
             ("Katu", "Päätie", "Pääkatu tai moottoriväylä"),
-            (
-                "Muu väylä",
-                "Huoltotie",
-                "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu",
-            ),
+            ("Muu väylä", "Huoltotie", "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu"),
+            ("Katu", "Huoltotie", "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu"),
             ("Katu", "Moottoriväylä", "Pääkatu tai moottoriväylä"),
-            (
-                "Katu",
-                "Tonttikatu",
-                "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu",
-            ),
-            (
-                "Kevyt liikenne",
-                "Piha- ja/tai kävelykatu",
-                "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu",
-            ),
-            (
-                "Kevyt liikenne",
-                "Pyöräkatu",
-                "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu",
-            ),
-            (
-                "Jalankulku ja pyöräliikenne",
-                "Piha- ja/tai kävelykatu",
-                "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu",
-            ),
-            (
-                "Jalankulku ja pyöräliikenne",
-                "Pyöräkatu",
-                "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu",
-            ),
+            ("Katu", "Tonttikatu", "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu"),
+            ("Kevyt liikenne", "Piha- ja/tai kävelykatu", "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu"),
+            ("Kevyt liikenne", "Pyöräkatu", "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu"),
+            ("Jalankulku ja pyöräliikenne","Piha- ja/tai kävelykatu", "Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu"),
+            ("Jalankulku ja pyöräliikenne","Pyöräkatu","Asuntokatu, huoltoväylä tai muu vähäliikenteinen katu"),
         )
 
         file_name = cfg.local_file(self._module)
