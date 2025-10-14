@@ -38,4 +38,4 @@ resources:
 
 extends:
   # Filename in Azure DevOps Repository
-  template: components/haitaton-gis-material-automation/pipelines/haitaton-gis-material-automation-dev.yml@haitaton-hanke-service-pipelines
+  template: components/haitaton-gis-material-automation/pipelines/haitaton-gis-material-automation-devtest.yml@haitaton-hanke-service-pipelines
