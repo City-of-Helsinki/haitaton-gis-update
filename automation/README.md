@@ -5,7 +5,7 @@ Automation module for Haitaton spatial material.
 # Quickstart
 
 In order to get started, following steps need to be taken.
-- Fill out variables in file `haitaton.env`
+- Copy `automation/haitaton.env.sample` as `automation/haitaton.env` and fill out the variables
 - Check configuration file `config.yaml`. At least `tormays_table_org`, `validate_limit_min` and `validate_limit_max` need to be set right. For others default values are ok.
 - Build `haitaton-gis-automation` image
 - Run `haitaton-gis-automation` container
@@ -51,3 +51,8 @@ Where `<source>` is currently one of:
 - `critical_areas` - Critical area from upper left corner of Rautatientori (static)
 
 This docker image run will fetch `<source>` data, process it and after that `<source>` data will be validated and deployed to the database using given environment variables.
+
+To run all sources at once, give:
+```sh
+docker run --rm --network host --env-file haitaton.env haitaton-gis-automation hsl tram_lines tram_infra ylre_katualueet ylre_katuosat maka_autoliikennemaarat cycle_infra central_business_area liikennevaylat special_transport_routes
+```
