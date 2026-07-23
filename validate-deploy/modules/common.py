@@ -73,8 +73,8 @@ def validate_data_count_limits(
         else:
             logger.info("Data amount is within given limits")
             return True
-    elif old_amount == -1:
-        logger.warn("Tormays table %s does not exist.", tormays_table_org)
+    elif old_amount == -1 or old_amount == 0:
+        logger.warn("Tormays table %s does not exist or is empty, skipping count validation.", tormays_table_org)
         return True
     else:
         logger.error("Data amount validation failed because of missing configuration.")
