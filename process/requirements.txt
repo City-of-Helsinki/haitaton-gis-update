@@ -10,4 +10,4 @@ ipykernel==6.29.*
 parse==1.20.*
 black==24.4.*
 isort==5.13.*
-fiona==1.9.*
+fiona==1.10.*

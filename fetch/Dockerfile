@@ -5,7 +5,6 @@ RUN apt-get update  \
     gdal-bin \
     gettext-base \
     libgdal-dev \
-    software-properties-common \
     wget \
     yq \
     && apt-get clean

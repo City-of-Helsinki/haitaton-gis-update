@@ -4,3 +4,4 @@ haitaton-gis-log
 haitaton-local-gis-output
 *.pyc
 /.idea
+/.venv
