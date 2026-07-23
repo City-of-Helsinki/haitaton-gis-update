@@ -90,7 +90,7 @@ tram_lines:
 #  store_orinal_data: "tram_lines"
 cycle_infra:
   addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
-  layer: "helsinki:Liikennevaylat_kehitys"
+  layer: "helsinki:Liikennevaylat"
   local_file: "helsinki_cycleways.gpkg"
   target_file: "cycle_infra.gpkg"
   target_buffer_file: "tormays_cycle_infra_polys.gpkg"
@@ -109,7 +109,7 @@ cycle_infra:
   ylre_street_class_buffer: 10
 liikennevaylat:
   addr: "WFS:https://$HELSINKI_EXTRANET_USERNAME:$HELSINKI_EXTRANET_PASSWORD@kartta.hel.fi/ws/geoserver/helsinki/wfs"
-  layer: "helsinki:Liikennevaylat_kehitys"
+  layer: "helsinki:Liikennevaylat"
   local_file: "liikennevaylat.gpkg"
   target_file: "street_classes.gpkg"
   target_buffer_file: "tormays_street_classes_polys.gpkg"
