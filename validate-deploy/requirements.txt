@@ -11,3 +11,4 @@ parse
 black
 isort
 boto3
+certifi>=2026.10.19

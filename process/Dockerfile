@@ -1,7 +1,8 @@
 FROM python:3.10
 
-RUN apt-get update
-RUN apt-get install -y gdal-bin libgdal-dev
+RUN apt-get update \
+    && apt-get install -y gdal-bin libgdal-dev \
+    && apt-get install --only-upgrade -y ca-certificates
 
 WORKDIR /opt
 COPY ./process/requirements.txt /opt
