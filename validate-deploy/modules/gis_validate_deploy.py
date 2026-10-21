@@ -22,12 +22,13 @@ class GisProcessor(ABC):
         self._tormays_file_temp = gpd.read_file(self._filename)
         self._tormays_file_temp.rename_geometry("geom", inplace=True)
 
-    def validate_deploy(self):
-        if self._force_deploy == "True":
+    def validate_deploy(self) -> bool:
+        """Validate and deploy. Returns True only if the data was deployed."""
+        if self._force_deploy:
             validate_result = validate_minimal(
                 self._module, self._tormays_file_temp, self._filename, self.logger
             )
-        elif self._force_deploy == "False":
+        else:
             # validate data amount: is it between given limits
             validate_result = validate_data_count_limits(
                 self._module,
@@ -39,12 +40,10 @@ class GisProcessor(ABC):
                 self._filename,
                 self.logger,
             )
-        else:
-            self.logger.error("Unexpected value for _force_deploy: %s", self._force_deploy)
 
         # Valid --> deploy
         if validate_result is True:
-            deploy(
+            return deploy(
                 self._pg_conn_uri,
                 self._tormays_table_org,
                 self._tormays_file_temp,
@@ -52,3 +51,4 @@ class GisProcessor(ABC):
             )
         else:
             self.logger.error("Validation failed (%s). No deploy.", self._module)
+            return False

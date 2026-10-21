@@ -40,8 +40,8 @@ echo "Fetching $sources ..."
 sh /haitaton-gis/fetch_all.sh ${sources}
 RESULT1="$?"
 if [ "$RESULT1" != "0" ]; then
-    echo -e "Fetching exit Code:" $RESULT1"\nFAILED to fetch data."
-    exit 0
+    printf "Fetching exit Code: %s\nFAILED to fetch data.\n" "$RESULT1"
+    exit 1
 else
     sources=""
     for tormays_source in $*
@@ -76,11 +76,17 @@ else
     /opt/venv/bin/python /haitaton-gis/process_data.py ${sources}
     RESULT2="$?"
     if [ "$RESULT2" != "0" ]; then
-        echo -e "Processing exit Code:" $RESULT2"\nFAILED to process data."
+        printf "Processing exit Code: %s\nFAILED to process data.\n" "$RESULT2"
+        exit 1
     else
         # Validate and deploy data
         echo "Validating and deploying ${org_sources} ..."
         /opt/venv/bin/python /haitaton-gis-validate-deploy/validate_deploy_data.py ${org_sources}
+        RESULT3="$?"
+        if [ "$RESULT3" != "0" ]; then
+            printf "Validate and deploy exit Code: %s\nFAILED to validate or deploy data.\n" "$RESULT3"
+            exit 1
+        fi
         echo "Deployed ${org_sources}."
     fi
 fi

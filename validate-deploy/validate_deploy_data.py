@@ -21,11 +21,10 @@ from modules.critical_areas import CriticalAreas
 
 DEFAULT_DEPLOYMENT_PROFILE = "local_development"
 
-def validate_deploy_item(item: str, cfg: Config):
+def validate_deploy_item(item: str, cfg: Config) -> bool:
     gis_processor = instantiate_processor(item, cfg)
     gis_processor.get_temp_data()
-    gis_processor.validate_deploy()
-    pass
+    return gis_processor.validate_deploy()
 
 def instantiate_processor(item: str, cfg: Config) -> GisProcessor:
     """Instantiate correct class for processing data."""
@@ -72,5 +71,11 @@ if __name__ == "__main__":
 
     cfg = Config().with_deployment_profile(use_deployment_profile)
 
+    failed_items = []
     for item in sys.argv[1:]:
-        validate_deploy_item(item, cfg)
+        if not validate_deploy_item(item, cfg):
+            failed_items.append(item)
+
+    if failed_items:
+        logger.error("Not deployed: {}".format(" ".join(failed_items)))
+        sys.exit(1)

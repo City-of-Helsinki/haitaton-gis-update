@@ -101,6 +101,8 @@ def deploy(pg_conn_uri, tormays_table_org, tormays_file_temp, logger):
                 tormays_table_org,
                 len(tormays_file_temp),
             )
+            return True
         except Exception:
             # Transaction implicitly rolls back if an exception occurred within the "with" block
             logger.exception("Exception while deploying.")
+            return False
