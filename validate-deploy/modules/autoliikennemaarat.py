@@ -24,9 +24,9 @@ class MakaAutoliikennemaarat(GisProcessor):
             buffer_data.rename_geometry("geom", inplace=True)
             self._tormays_files_temp[buffer] = buffer_data
 
-    def validate_deploy(self):
+    def validate_deploy(self) -> bool:
         # validate data amount: is it between given limits
-        validate_result = False
+        all_deployed = True
 
         for buffer in self._buffers:
             self.logger.info("Validating for buffer value %u", buffer)
@@ -49,13 +49,17 @@ class MakaAutoliikennemaarat(GisProcessor):
                     self.logger,
                 )
             if validate_result is True:
-                self._deploy_result = deploy(
+                if not deploy(
                     self._pg_conn_uri,
                     self._tormays_table_org.format(buffer),
                     self._tormays_files_temp[buffer],
                     self.logger,
-                )
+                ):
+                    all_deployed = False
             else:
                 self.logger.error(
                     "Validation failed(%s_%u). No deploy", self._module, buffer
                 )
+                all_deployed = False
+
+        return all_deployed
