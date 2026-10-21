@@ -7,6 +7,7 @@ RUN apt-get update  \
     libgdal-dev \
     wget \
     yq \
+    && apt-get install --only-upgrade -y ca-certificates \
     && apt-get clean
 
 ENTRYPOINT [ "sh", "/haitaton-gis/fetch_all.sh" ]
