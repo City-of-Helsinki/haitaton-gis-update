@@ -6,3 +6,4 @@ psycopg2-binary==2.9.*
 geoalchemy2==0.15.*
 parse==1.20.*
 fiona==1.10.*
+certifi>=2026.10.19
