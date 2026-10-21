@@ -82,10 +82,11 @@ def validate_data_count_limits(
 
 
 def deploy(pg_conn_uri, tormays_table_org, tormays_file_temp, logger):
-    engine = create_engine(pg_conn_uri)
-    with engine.connect() as connection:
-        transaction = connection.begin()
-        try:
+    """Replace the table with the new data. Returns True if the data was deployed."""
+    try:
+        engine = create_engine(pg_conn_uri)
+        # engine.begin() commits when the block exits normally and rolls back if it raises
+        with engine.begin() as connection:
             logger.info("Deploy ...")
             tormays_file_temp.to_postgis(
                 tormays_table_org,
@@ -95,14 +96,12 @@ def deploy(pg_conn_uri, tormays_table_org, tormays_file_temp, logger):
                 index=True,
                 index_label="fid",
             )
-            transaction.commit()
-            logger.info(
-                "Uploaded new data into table %s: %u rows",
-                tormays_table_org,
-                len(tormays_file_temp),
-            )
-            return True
-        except Exception:
-            # Transaction implicitly rolls back if an exception occurred within the "with" block
-            logger.exception("Exception while deploying.")
-            return False
+        logger.info(
+            "Uploaded new data into table %s: %u rows",
+            tormays_table_org,
+            len(tormays_file_temp),
+        )
+        return True
+    except Exception:
+        logger.exception("Exception while deploying.")
+        return False

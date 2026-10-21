@@ -73,6 +73,11 @@ if __name__ == "__main__":
 
     cfg = Config().with_deployment_profile(use_deployment_profile)
 
+    force_deploy_value = os.environ.get("GIS_UPDATE_FORCE_DEPLOY")
+    logger.info("Force deploy: {} (GIS_UPDATE_FORCE_DEPLOY={})".format(cfg.force_deploy(), force_deploy_value))
+    if force_deploy_value is not None and force_deploy_value.strip().lower() not in ("true", "false"):
+        logger.warning("Unrecognized GIS_UPDATE_FORCE_DEPLOY value '{}', treating it as False".format(force_deploy_value))
+
     failed_items = []
     for item in sys.argv[1:]:
         try:
