@@ -23,6 +23,8 @@ DEFAULT_DEPLOYMENT_PROFILE = "local_development"
 
 def validate_deploy_item(item: str, cfg: Config) -> bool:
     gis_processor = instantiate_processor(item, cfg)
+    if gis_processor is None:
+        return False
     gis_processor.get_temp_data()
     return gis_processor.validate_deploy()
 
@@ -73,7 +75,12 @@ if __name__ == "__main__":
 
     failed_items = []
     for item in sys.argv[1:]:
-        if not validate_deploy_item(item, cfg):
+        try:
+            deployed = validate_deploy_item(item, cfg)
+        except Exception:
+            logger.exception("Exception while validating and deploying {}".format(item))
+            deployed = False
+        if not deployed:
             failed_items.append(item)
 
     if failed_items:

@@ -26,7 +26,6 @@ class MakaAutoliikennemaarat(GisProcessor):
 
     def validate_deploy(self) -> bool:
         # validate data amount: is it between given limits
-        validate_result = False
         all_deployed = True
 
         for buffer in self._buffers:
