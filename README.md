@@ -145,6 +145,7 @@ Where `<source>` is currently one of:
 - `central_business_area` - Helsinki city "kantakaupunki"
 - `liikennevaylat` - Helsinki city street classes
 - `special_transport_routes` - Helsinki city special transport routes
+- `critical_areas` - Critical area from upper left corner of Rautatientori (static)
 
 Data files are downloaded to `./haitaton-downloads` -directory.
 
@@ -406,6 +407,28 @@ Output files (names configured in `config.yaml`)
 - special_transport_routes.gpkg
 - tormays_special_transport_routes_polys.gpkg
 
+### `critical_areas`
+
+Prerequisite:
+- None
+
+Docker example run (ensure that image build and file copying is
+already performed as instructed above):
+
+```sh
+docker-compose up -d gis-db
+docker-compose run --rm gis-fetch critical_areas
+docker-compose run --rm gis-process critical_areas
+docker-compose stop gis-db
+```
+
+Processed GIS material is available in:
+haitaton-gis-output
+
+Output files (names configured in `config.yaml`)
+
+- critical_areas.gpkg
+- tormays_critical_area_polys.gpkg
 
 ## Run validate-deploy
 

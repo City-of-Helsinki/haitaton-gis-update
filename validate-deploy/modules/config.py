@@ -95,7 +95,7 @@ class Config:
 
     def force_deploy(self) -> bool:
         """Skip validation, except that there are some features."""
-        return os.environ.get("GIS_UPDATE_FORCE_DEPLOY", False)
+        return os.environ.get("GIS_UPDATE_FORCE_DEPLOY", "False").strip().lower() == "true"
 
     def pg_conn_uri(self, deployment: str = None) -> str:
         """Return PostgreSQL connection URI

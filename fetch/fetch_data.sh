@@ -61,6 +61,9 @@ extra_args=$(parse_config $(cfg_extra_args $data_object))
 extra_quoted_args=$(parse_config $(cfg_extra_quoted_args $data_object))
 
 case $data_object in
+critical_areas)
+    echo "$addr"
+    ;;
 hsl)
     wget --progress=dot:mega -O "$local_file" "$addr"
     ;;

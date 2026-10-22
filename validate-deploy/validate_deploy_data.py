@@ -17,14 +17,16 @@ from modules.cycling_infra import CycleInfra
 from modules.liikennevaylat import Liikennevaylat
 from modules.central_business_area import CentralBusinessAreas
 from modules.special_transport_routes import SpecialTransportRoutes
+from modules.critical_areas import CriticalAreas
 
 DEFAULT_DEPLOYMENT_PROFILE = "local_development"
 
-def validate_deploy_item(item: str, cfg: Config):
+def validate_deploy_item(item: str, cfg: Config) -> bool:
     gis_processor = instantiate_processor(item, cfg)
+    if gis_processor is None:
+        return False
     gis_processor.get_temp_data()
-    gis_processor.validate_deploy()
-    pass
+    return gis_processor.validate_deploy()
 
 def instantiate_processor(item: str, cfg: Config) -> GisProcessor:
     """Instantiate correct class for processing data."""
@@ -48,6 +50,8 @@ def instantiate_processor(item: str, cfg: Config) -> GisProcessor:
         return CentralBusinessAreas(cfg)
     elif item == "special_transport_routes":
         return SpecialTransportRoutes(cfg)
+    elif item == "critical_areas":
+        return CriticalAreas(cfg)
     else:
         logger.error("Configuration not recognized: {}".format(item))
 
@@ -69,5 +73,21 @@ if __name__ == "__main__":
 
     cfg = Config().with_deployment_profile(use_deployment_profile)
 
+    force_deploy_value = os.environ.get("GIS_UPDATE_FORCE_DEPLOY")
+    logger.info("Force deploy: {} (GIS_UPDATE_FORCE_DEPLOY={})".format(cfg.force_deploy(), force_deploy_value))
+    if force_deploy_value is not None and force_deploy_value.strip().lower() not in ("true", "false"):
+        logger.warning("Unrecognized GIS_UPDATE_FORCE_DEPLOY value '{}', treating it as False".format(force_deploy_value))
+
+    failed_items = []
     for item in sys.argv[1:]:
-        validate_deploy_item(item, cfg)
+        try:
+            deployed = validate_deploy_item(item, cfg)
+        except Exception:
+            logger.exception("Exception while validating and deploying {}".format(item))
+            deployed = False
+        if not deployed:
+            failed_items.append(item)
+
+    if failed_items:
+        logger.error("Not deployed: {}".format(" ".join(failed_items)))
+        sys.exit(1)

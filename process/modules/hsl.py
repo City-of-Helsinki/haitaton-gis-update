@@ -60,7 +60,7 @@ class HslBuses(GisProcessor):
             feed = (gk.read_feed(file_name, dist_units="km"))
         except Exception:
             logger.exception("An error occurred:")
-            exit()
+            exit(1)
         return feed
 
     def feed(self) -> gk.Feed:

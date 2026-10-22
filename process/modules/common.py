@@ -54,6 +54,8 @@ def clipAreasByAreas(geometryToClip: gpd.GeoDataFrame, mask: gpd.GeoDataFrame, g
     # Adding clipped results to objects which were not checked at all
     if geometryToClipCheckAttr is not None:
         retval = gpd.GeoDataFrame(pd.concat([geometryToClipNotCheckObjects, clipped_result], ignore_index=True))
+    else:
+        retval = geometryToClipOnlyCheckObjects
 
     # Adding not clipped objects
     retval = gpd.GeoDataFrame(pd.concat([retval, not_clipped], ignore_index=True))
