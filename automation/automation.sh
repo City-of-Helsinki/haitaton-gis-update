@@ -73,10 +73,19 @@ else
     done
     sources=$(echo "$sources" | xargs -n1 | cat -n | sort -k2 | uniq -f1 | sort -k1 | cut -f2- |  xargs)
     echo "Processing ${sources} ..."
-    /opt/venv/bin/python /haitaton-gis/process_data.py ${sources}
-    RESULT2="$?"
+    # One process per source: GDAL/pandas don't return freed memory to the OS,
+    # so a single process accumulates memory across sources and gets OOMKilled.
+    RESULT2="0"
+    for source in ${sources}
+    do
+        /opt/venv/bin/python /haitaton-gis/process_data.py "${source}"
+        RESULT2="$?"
+        if [ "$RESULT2" != "0" ]; then
+            break
+        fi
+    done
     if [ "$RESULT2" != "0" ]; then
-        printf "Processing exit Code: %s\nFAILED to process data.\n" "$RESULT2"
+        printf "Processing %s exit Code: %s\nFAILED to process data.\n" "$source" "$RESULT2"
         exit 1
     else
         # Validate and deploy data
