@@ -2,6 +2,12 @@ FROM ghcr.io/osgeo/gdal:ubuntu-small-3.13.2
 
 ENV TORMAYS_DEPLOYMENT_PROFILE=docker_development
 
+# Install packages from a mirror over HTTPS: archive.ubuntu.com and
+# security.ubuntu.com have been unreachable from the OpenShift build.
+ARG UBUNTU_MIRROR=https://ftp.funet.fi/pub/mirrors/archive.ubuntu.com
+RUN sed -i -E "s#https?://(archive|security)\.ubuntu\.com/ubuntu/?#${UBUNTU_MIRROR}#g" \
+    /etc/apt/sources.list.d/ubuntu.sources
+
 RUN apt-get update  \
     && apt-get install --no-install-recommends -y \
     g++ \
